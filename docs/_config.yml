@@ -5,5 +5,5 @@ repo_name: GitHub
 site_author: stefffdev
 copyright: 'Copyright &copy; 2020 stefffdev'
 nav:
-    - Introduction: Introduction.md
+    - Introduction: index.md
 theme: jekyll-theme-cayman
