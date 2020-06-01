@@ -1,2 +1,0 @@
-# Creating a NubeSync client
-The NubeSync framework is designed to run in any form of .NET program, like Xamarin.Forms, Blazor, WPF or Console apps.

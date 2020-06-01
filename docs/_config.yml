@@ -1,9 +1,0 @@
-site_name: Develop Cloud Connected Mobile Apps with Xamarin and Microsoft Azure
-site_url: https://stefffdev.github.io/NubeSync/
-repo_url: https://github.com/stefffdev/NubeSync/
-repo_name: GitHub
-site_author: stefffdev
-copyright: 'Copyright &copy; 2020 stefffdev'
-nav:
-    - Introduction: Introduction.md
-theme: jekyll-theme-cayman
