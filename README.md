@@ -1,17 +1,19 @@
 # NubeSync
 NubeSync is a offline data sync framework designed for .NET applications.
-
-With NubeSync clients apps work with a offline version of a database usually hosted in the cloud. All changes made on the client are are stored locally and synced to the server when the client is online.
+The client app keeps a copy of the database and all changes made are stored locally and synced to the server when the client is online.
 
 ## Features
 * Client side storage uses a standard SQLite database
 * Creating indexes and encryption are supported
-* Fast operations based transmission from the changes to the server
-* Incremental sync from the server
-* Automatic merge conflict resolution (last change wins) is performed on the server
+* Fast operations based transmission of the changes to the server
+* Incremental sync when downloading new and changed records from the server
+* Automatic merge conflict resolution (last change wins) on per field basis is performed on the server
 * Based on standard technologies (ASP.NET Core, SQLite, REST)
 * Server side storage can use all Entity Framework Core compatible storages (e.g. Microsoft SQL, CosmosDB)
-* NubeSync can be implemented as successor to the Azure Mobile App Service
+* NubeSync can be implemented as a successor to the Azure Mobile App Service offline sync capabilities
+
+## Documentation
+See the [Wiki page](https://github.com/stefffdev/NubeSync/wiki)
 
 ## Repositories
 ### Client SDK
