@@ -1,6 +1,5 @@
 # NubeSync
 NubeSync is a offline data sync framework designed for .NET applications.
-The client app keeps a copy of the database and all changes made are stored locally and synced to the server when the client is online.
 
 ## Features
 * Client side storage uses a standard SQLite database
