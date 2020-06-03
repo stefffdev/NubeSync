@@ -10,6 +10,9 @@ NubeSync is a offline data sync framework designed for .NET applications.
 * Server side storage can use all Entity Framework Core compatible storages (e.g. Microsoft SQL, CosmosDB)
 * NubeSync can be implemented as a successor to the Azure Mobile App Service offline sync capabilities
 
+## Getting Started
+Have a look at the [samples](https://github.com/stefffdev/NubeSync.Samples) to get started.
+
 ## Documentation
 See the [Wiki page](https://github.com/stefffdev/NubeSync/wiki)
 
