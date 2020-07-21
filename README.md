@@ -1,5 +1,5 @@
 # NubeSync
-NubeSync is a offline data sync framework designed for .NET applications.
+NubeSync is a bi-directional offline data sync framework designed for .NET applications.
 
 ## Features
 * Fast operations based transmission of the changes to the server
