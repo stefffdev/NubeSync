@@ -8,11 +8,21 @@ namespace NubeSync.Client.SQLiteStore
     {
         public async Task<bool> AddOperationsAsync(params NubeOperation[] operations)
         {
+            if (operations == null || !operations.Any())
+            {
+                return true;
+            }
+
             return await Database.InsertAllAsync(operations) > 0;
         }
 
         public async Task<bool> DeleteOperationsAsync(params NubeOperation[] operations)
         {
+            if (operations == null || !operations.Any())
+            {
+                return true;
+            }
+
             var deletedRecords = 0;
 
             foreach (var operation in operations)

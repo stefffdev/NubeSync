@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using NubeSync.Client.Data;
 using Xunit;
 
 namespace Tests.NubeSync.Client.SQLiteStoreEFCore.NubeSQLiteDataStoreEFCore_Operations_test
@@ -17,6 +19,26 @@ namespace Tests.NubeSync.Client.SQLiteStoreEFCore.NubeSQLiteDataStoreEFCore_Oper
         }
 
         [Fact]
+        public async Task Add_operations_does_not_throw_when_list_is_empty()
+        {
+            await DataStore.InitializeAsync();
+
+            var result = await DataStore.AddOperationsAsync(new List<NubeOperation>().ToArray());
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task Add_operations_does_not_throw_when_list_is_null()
+        {
+            await DataStore.InitializeAsync();
+
+            var result = await DataStore.AddOperationsAsync(null);
+
+            Assert.True(result);
+        }
+
+        [Fact]
         public async Task Delete_operations_deletes()
         {
             await DataStore.AddOperationsAsync(Operations);
@@ -25,6 +47,26 @@ namespace Tests.NubeSync.Client.SQLiteStoreEFCore.NubeSQLiteDataStoreEFCore_Oper
 
             var operations = await DataStore.GetOperationsAsync();
             Assert.Empty(operations);
+        }
+
+        [Fact]
+        public async Task Delete_operations_does_not_throw_when_list_is_empty()
+        {
+            await DataStore.InitializeAsync();
+
+            var result = await DataStore.DeleteOperationsAsync(new List<NubeOperation>().ToArray());
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async Task Delete_operations_does_not_throw_when_list_is_null()
+        {
+            await DataStore.InitializeAsync();
+
+            var result = await DataStore.DeleteOperationsAsync(null);
+
+            Assert.True(result);
         }
 
         [Fact]
