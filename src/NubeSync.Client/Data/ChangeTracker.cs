@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace NubeSync.Client.Data
 {
-    internal class ChangeTracker : IChangeTracker
+    public class ChangeTracker : IChangeTracker
     {
         public Task<List<NubeOperation>> TrackAddAsync<T>(T item) where T : NubeTable
         {
