@@ -1,0 +1,198 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using NubeSync.Client.Data;
+using NubeSync.Client.Helpers;
+
+namespace NubeSync.Client
+{
+    public partial class NubeClient
+    {
+        /// <summary>
+        /// Deletes the given record from the local storage and adds the generated sync operations.
+        /// </summary>
+        /// <param name="item">The item to be deleted.</param>
+        /// <param name="disableChangeTracker">Optional: If true generating the sync operations is omitted.</param>
+        public async Task DeleteAsync<T>(T item, bool disableChangeTracker = false) where T : NubeTable, new()
+        {
+            _IsValidTable<T>();
+
+            if (string.IsNullOrEmpty(item.Id))
+            {
+                throw new InvalidOperationException("Cannot delete item without id");
+            }
+
+            if (await _dataStore.DeleteAsync(item))
+            {
+                if (!disableChangeTracker)
+                {
+                    await _SaveDeleteOperations(item);
+                    await _RemoveObsoleteOperationsAfterDeleteAsync(item);
+                }
+            }
+            else
+            {
+                throw new StoreOperationFailedException($"Could not delete item");
+            }
+        }
+
+        /// <summary>
+        /// Queries the local storage with the given predicate.
+        /// </summary>
+        /// <typeparam name="T">The type of the table to be queried.</typeparam>
+        /// <param name="predicate">The filter predicate.</param>
+        /// <returns>All items from the table matching the criteria.</returns>
+        public async Task<IQueryable<T>> FindByAsync<T>(Expression<Func<T, bool>> predicate) where T : NubeTable, new()
+        {
+            _IsValidTable<T>();
+
+            return await _dataStore.FindByAsync(predicate);
+        }
+
+        /// <summary>
+        /// Returns all items from the table.
+        /// </summary>
+        /// <typeparam name="T">The type of the table.</typeparam>
+        /// <returns>All items from the table.</returns>
+        public async Task<IQueryable<T>> GetAllAsync<T>() where T : NubeTable, new()
+        {
+            _IsValidTable<T>();
+
+            return await _dataStore.AllAsync<T>();
+        }
+
+        /// <summary>
+        /// Gets a item by its id.
+        /// </summary>
+        /// <typeparam name="T">The type of the table to be queried.</typeparam>
+        /// <param name="id">The id of the item.</param>
+        /// <returns>The item with the given id.</returns>
+        public async Task<T> GetByIdAsync<T>(string id) where T : NubeTable, new()
+        {
+            _IsValidTable<T>();
+
+            return await _dataStore.FindByIdAsync<T>(id);
+        }
+
+        /// <summary>
+        /// Saves a record to the local storage. Adds it if it does not exist or updates it, if a record with the given id already exists. Also adds all sync operations for the changes made.
+        /// </summary>
+        /// <param name="item">The item to be saved.</param>
+        /// <param name="disableChangeTracker">Optional: If true generating the sync operations is omitted.</param>
+        public async Task SaveAsync<T>(T item, bool disableChangeTracker = false) where T : NubeTable, new()
+        {
+            _IsValidTable<T>();
+
+            var now = DateTimeOffset.Now;
+            if (!disableChangeTracker)
+            {
+                item.UpdatedAt = now;
+            }
+
+            var existingItem = await _dataStore.FindByIdAsync<T>(item.Id);
+            if (existingItem == null)
+            {
+                if (string.IsNullOrEmpty(item.Id))
+                {
+                    item.Id = Guid.NewGuid().ToString();
+                }
+
+                if (!disableChangeTracker)
+                {
+                    item.CreatedAt = now;
+                }
+
+                if (await _dataStore.InsertAsync(item))
+                {
+                    if (!disableChangeTracker)
+                    {
+                        await _SaveAddOperations(item);
+                    }
+                }
+                else
+                {
+                    throw new StoreOperationFailedException($"Could not insert item");
+                }
+            }
+            else
+            {
+                var oldItem = ObjectHelper.Clone(existingItem);
+                if (await _dataStore.UpdateAsync(item))
+                {
+                    if (!disableChangeTracker)
+                    {
+                        await _SaveModifyOperations(item, oldItem);
+                    }
+                }
+                else
+                {
+                    throw new StoreOperationFailedException($"Could not update item");
+                }
+            }
+        }
+
+        private void _IsValidTable<T>()
+        {
+            if (!_nubeTableTypes.ContainsKey(typeof(T).Name))
+            {
+                throw new InvalidOperationException($"Table {typeof(T).Name} is not registered in the nube client");
+            }
+        }
+
+        private async Task _RemoveObsoleteOperationsAfterDeleteAsync<T>(T item) where T : NubeTable, new()
+        {
+            var obsoleteOperations = (await _dataStore.GetOperationsAsync())
+                .Where(o => o.ItemId == item.Id && o.Type != OperationType.Deleted).ToList();
+            if (!await _dataStore.DeleteOperationsAsync(obsoleteOperations.ToArray()))
+            {
+                throw new StoreOperationFailedException($"Could not delete obsolete operations for deleted item {item.Id}");
+            }
+        }
+
+        private async Task _RemoveObsoleteOperationsAfterModifyAsync(List<NubeOperation> operations)
+        {
+            var obsoleteOperations = new List<NubeOperation>();
+            foreach (var operation in operations)
+            {
+                obsoleteOperations.AddRange((await _dataStore.GetOperationsAsync())
+                    .Where(o => o.ItemId == operation.ItemId && o.Property == operation.Property && o.Type == OperationType.Modified));
+            }
+
+            if (!await _dataStore.DeleteOperationsAsync(obsoleteOperations.ToArray()))
+            {
+                throw new StoreOperationFailedException($"Could not delete obsolete operations for modified item");
+            }
+        }
+
+        private async Task _SaveAddOperations<T>(T item) where T : NubeTable, new()
+        {
+            var operations = await _changeTracker.TrackAddAsync(item);
+            if (!await _dataStore.AddOperationsAsync(operations.ToArray()))
+            {
+                throw new StoreOperationFailedException($"Could not save add operations for item {item.Id}");
+            }
+        }
+
+        private async Task _SaveDeleteOperations<T>(T item) where T : NubeTable, new()
+        {
+            var operation = await _changeTracker.TrackDeleteAsync(item);
+            if (!await _dataStore.AddOperationsAsync(operation))
+            {
+                throw new StoreOperationFailedException($"Could not save delete operation for item {item.Id}");
+            }
+        }
+
+        private async Task _SaveModifyOperations<T>(T item, T oldItem) where T : NubeTable, new()
+        {
+            var operations = await _changeTracker.TrackModifyAsync(oldItem, item);
+            if (!await _dataStore.AddOperationsAsync(operations.ToArray()))
+            {
+                throw new StoreOperationFailedException($"Could not save modify operations for item {item.Id}");
+            }
+
+            await _RemoveObsoleteOperationsAfterModifyAsync(operations);
+        }
+    }
+}

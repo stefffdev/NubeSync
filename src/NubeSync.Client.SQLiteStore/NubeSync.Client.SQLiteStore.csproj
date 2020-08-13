@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <TargetFrameworks>netcoreapp3.1;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <Authors>stefffdev</Authors>
+    <Description>NubeSync Client Framework with SQLite Storage</Description>
+    <PackageTags>mobile;data;sync;azure mobile app;</PackageTags>
+    <PackageProjectUrl>https://github.com/stefffdev/NubeSync</PackageProjectUrl>
+    <PackageId>NubeSync.Client.SQLiteStore</PackageId>
+    <Product>NubeSync.Client.SQLiteStore</Product>
+    <Copyright>Copyright 2020 steffdev</Copyright>
+    <RepositoryUrl>https://github.com/stefffdev/NubeSync.Client</RepositoryUrl>
+    <PackageIcon>Icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NubeSync.Client\NubeSync.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Tests.$(AssemblyName)</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+  
+</Project>
