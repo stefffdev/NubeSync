@@ -14,13 +14,3 @@ NubeSync is a bi-directional offline data sync framework
 
 ## Documentation & Getting Started
 See the [Wiki page](https://github.com/stefffdev/NubeSync/wiki) for getting started and have a look at the [samples](https://github.com/stefffdev/NubeSync.Samples).
-
-## Repositories
-### Client SDK
-* https://github.com/stefffdev/NubeSync.Client - Client SDK for .NET platforms
-
-### Server SDK
-* https://github.com/stefffdev/NubeSync.Server - Server SDK for .NET platforms
-
-### Samples
-* https://github.com/stefffdev/NubeSync.Samples - Full end-to-end samples of a backend service with authentication and (mobile) client apps
