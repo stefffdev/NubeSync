@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using NSubstitute;
@@ -16,6 +18,26 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await NubeClient.DeleteAsync(Item));
 
             Assert.Equal("Table TestItem is not registered in the nube client", ex.Message);
+        }
+
+        [Fact]
+        public async Task Cleans_up_obsolete_operations()
+        {
+            await AddTablesAsync();
+            var existingOperations = new List<NubeOperation>()
+            {
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, Type = OperationType.Deleted },
+                new NubeOperation() { ItemId = Item.Id, Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, Type = OperationType.Added },
+            };
+            var expectedOperations = existingOperations.Skip(2).ToList();
+            DataStore.GetOperationsAsync().Returns(existingOperations.AsQueryable());
+
+            await NubeClient.DeleteAsync(Item);
+
+            Assert.Equal(expectedOperations, RemovedOperations);
         }
 
         [Fact]
@@ -63,8 +85,20 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
         }
 
         [Fact]
+        public async Task Throws_when_operations_cannot_be_stored()
+        {
+            await AddTablesAsync();
+            DataStore.AddOperationsAsync(Arg.Any<NubeOperation[]>()).Returns(false);
+
+            var ex = await Assert.ThrowsAsync<StoreOperationFailedException>(async () => await NubeClient.DeleteAsync(Item));
+
+            Assert.Equal($"Could not save delete operation for item {Item.Id}", ex.Message);
+        }
+
+        [Fact]
         public async Task Throws_when_store_fails()
         {
+            DataStore.DeleteAsync(Arg.Any<TestItem>()).Returns(false);
             await AddTablesAsync();
 
             var ex = await Assert.ThrowsAsync<StoreOperationFailedException>(async () => await NubeClient.DeleteAsync(Item));
@@ -153,12 +187,45 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
 
     public class Save : NubeClientTestBase
     {
+        private readonly TestItem _newItem;
+
+        public Save()
+        {
+            _newItem = TestFactory.CreateTestItem(Item.Id, "NewName", DateTimeOffset.Now.AddSeconds(1));
+        }
+
         [Fact]
         public async Task Checks_if_table_is_valid()
         {
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await NubeClient.SaveAsync(Item));
 
             Assert.Equal("Table TestItem is not registered in the nube client", ex.Message);
+        }
+
+        [Fact]
+        public async Task Cleans_up_obsolete_operations()
+        {
+            await AddTablesAsync();
+            _AddItemToStore();
+            DataStore.UpdateAsync(Arg.Any<TestItem>()).Returns(true);
+
+            _newItem.CreatedAt = Item.CreatedAt;
+            var existingOperations = new List<NubeOperation>()
+            {
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, Property = "CreatedAt", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, Property = "Name", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, Property = "UpdatedAt", Type = OperationType.Modified },
+            };
+            var expectedOperations = existingOperations.Skip(2).ToList();
+            DataStore.GetOperationsAsync().Returns(existingOperations.AsQueryable());
+            var changeTracker = new ChangeTracker();
+            var addOperations = await changeTracker.TrackModifyAsync(Item, _newItem);
+            ChangeTracker.TrackModifyAsync(Arg.Any<TestItem>(), Arg.Any<TestItem>()).Returns(addOperations);
+
+            await NubeClient.SaveAsync(_newItem);
+
+            Assert.Equal(expectedOperations, RemovedOperations);
         }
 
         [Fact]
@@ -255,6 +322,31 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
             await NubeClient.SaveAsync(Item);
 
             Assert.NotEqual(updatedAt, Item.UpdatedAt);
+        }
+
+        [Fact]
+        public async Task Throws_when_operations_cannot_be_removed()
+        {
+            _AddItemToStore();
+            await AddTablesAsync();
+            DataStore.UpdateAsync(Arg.Any<TestItem>()).Returns(true);
+            DataStore.DeleteOperationsAsync(Arg.Any<NubeOperation[]>()).Returns(false);
+
+            var ex = await Assert.ThrowsAsync<StoreOperationFailedException>(async () => await NubeClient.SaveAsync(_newItem));
+
+            Assert.Equal($"Could not delete obsolete operations for modified item", ex.Message);
+        }
+
+        [Fact]
+        public async Task Throws_when_operations_cannot_be_stored()
+        {
+            await AddTablesAsync();
+            DataStore.InsertAsync(Arg.Any<TestItem>()).Returns(true);
+            DataStore.AddOperationsAsync(Arg.Any<NubeOperation[]>()).Returns(false);
+
+            var ex = await Assert.ThrowsAsync<StoreOperationFailedException>(async () => await NubeClient.SaveAsync(_newItem));
+
+            Assert.Equal($"Could not save add operations for item {Item.Id}", ex.Message);
         }
 
         [Fact]
