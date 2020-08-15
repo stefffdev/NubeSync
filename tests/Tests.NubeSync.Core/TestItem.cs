@@ -1,7 +1,7 @@
 ﻿using System;
 using NubeSync.Core;
 
-namespace Tests.NubeSync.Client.SQLiteStore
+namespace Tests.NubeSync.Core
 {
     public class TestItem : NubeTable
     {

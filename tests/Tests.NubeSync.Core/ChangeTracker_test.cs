@@ -2,10 +2,10 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 using Xunit;
 
-namespace Tests.NubeSync.Client.Data.ChangeTracker_test
+namespace Tests.NubeSync.Core.ChangeTracker_test
 {
     public class _ChangeTrackerTestBase
     {
@@ -92,7 +92,7 @@ namespace Tests.NubeSync.Client.Data.ChangeTracker_test
         [Fact]
         public async Task Creates_the_delete_operation()
         {
-            var operation = await _changeTracker.TrackDeleteAsync(Item);
+            var operation = (await _changeTracker.TrackDeleteAsync(Item)).First();
 
             Assert.Equal("TestItem", operation.TableName);
             Assert.Equal(Item.Id, operation.ItemId);

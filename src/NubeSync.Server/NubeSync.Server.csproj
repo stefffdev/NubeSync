@@ -15,14 +15,15 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>stefffdev</Authors>
     <Description>NubeSync Server Framework</Description>
     <PackageTags>mobile;data;sync;azure mobile app;</PackageTags>
     <PackageProjectUrl>https://github.com/stefffdev/NubeSync</PackageProjectUrl>
     <PackageId>NubeSync.Server</PackageId>
     <Product>NubeSync.Server</Product>
-    <RepositoryUrl>https://github.com/stefffdev/NubeSync.Server</RepositoryUrl>
+    <Copyright>Copyright 2020 stefffdev</Copyright>
+    <RepositoryUrl>https://github.com/stefffdev/NubeSync</RepositoryUrl>
     <PackageIcon>Icon.png</PackageIcon>
   </PropertyGroup>
   
@@ -36,6 +37,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\NubeSync.Core\NubeSync.Core.csproj" />
   </ItemGroup>
 
 </Project>

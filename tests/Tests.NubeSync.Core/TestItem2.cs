@@ -1,6 +1,6 @@
 ﻿using NubeSync.Core;
 
-namespace Tests.NubeSync.Client
+namespace Tests.NubeSync.Core
 {
     public class TestItem2 : NubeTable
     {

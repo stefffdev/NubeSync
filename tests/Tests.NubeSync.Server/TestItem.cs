@@ -2,7 +2,7 @@
 
 namespace Tests.NubeSync.Server
 {
-    public class TestItem : NubeTable
+    public class TestItem : NubeServerTable
     {
         public string Name { get; set; }
     }

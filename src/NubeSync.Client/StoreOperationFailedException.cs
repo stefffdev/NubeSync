@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NubeSync.Client.Data
+namespace NubeSync.Client
 {
     public class StoreOperationFailedException : Exception
     {

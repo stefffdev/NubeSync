@@ -2,7 +2,7 @@
 using System.Globalization;
 using Xunit;
 
-namespace Tests.NubeSync.Client.Data.NubeTable_test
+namespace Tests.NubeSync.Core.NubeTable_test
 {
     public class Get_properties
     {
@@ -32,7 +32,7 @@ namespace Tests.NubeSync.Client.Data.NubeTable_test
         {
             var result = Item.GetProperties();
 
-            Assert.Equal(4, result.Count);
+            Assert.Equal(3, result.Count);
             Assert.Equal(Item.Name, result["Name"]);
             Assert.Equal(Convert.ToString(Item.CreatedAt, CultureInfo.InvariantCulture), result["CreatedAt"]);
             Assert.Equal(Convert.ToString(Item.UpdatedAt, CultureInfo.InvariantCulture), result["UpdatedAt"]);

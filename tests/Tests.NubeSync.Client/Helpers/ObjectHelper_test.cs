@@ -1,6 +1,6 @@
 ﻿using System;
-using NubeSync.Client.Data;
 using NubeSync.Client.Helpers;
+using NubeSync.Core;
 using Xunit;
 
 namespace Tests.NubeSync.Client.Helpers.ObjectHelper_test

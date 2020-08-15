@@ -7,8 +7,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using NubeSync.Client.Data;
 using NubeSync.Client.Helpers;
+using NubeSync.Core;
 
 namespace NubeSync.Client
 {

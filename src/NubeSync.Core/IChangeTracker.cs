@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace NubeSync.Client.Data
+namespace NubeSync.Core
 {
     public interface IChangeTracker
     {
@@ -19,7 +19,7 @@ namespace NubeSync.Client.Data
         /// <typeparam name="T">The type of the deleted record</typeparam>
         /// <param name="item">The record that was deleted</param>
         /// <returns>The created operations</returns>
-        Task<NubeOperation> TrackDeleteAsync<T>(T item) where T : NubeTable;
+        Task<List<NubeOperation>> TrackDeleteAsync<T>(T item) where T : NubeTable;
 
         /// <summary>
         /// Creates the according operations for a record that was modified in the datastore.

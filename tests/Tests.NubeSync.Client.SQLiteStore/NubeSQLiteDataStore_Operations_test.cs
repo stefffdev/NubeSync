@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 using Xunit;
 
 namespace Tests.NubeSync.Client.SQLiteStore.NubeSQLiteDataStore_Operations_test

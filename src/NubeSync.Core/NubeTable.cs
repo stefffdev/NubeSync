@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-namespace NubeSync.Client.Data
+namespace NubeSync.Core
 {
     public abstract class NubeTable
     {
@@ -22,7 +22,11 @@ namespace NubeSync.Client.Data
         {
             var result = new Dictionary<string, string?>();
             IList<PropertyInfo> props = new List<PropertyInfo>(GetType().GetProperties()
-                .Where(p => p.Name != nameof(Id)));
+                .Where(p => p.Name != nameof(Id) && 
+                p.Name != "ClusteredIndex" &&
+                p.Name != "UserId" && 
+                p.Name != "ServerUpdatedAt" && 
+                p.Name != "DeletedAt"));
 
             foreach (var prop in props)
             {

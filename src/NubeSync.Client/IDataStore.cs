@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using NubeSync.Core;
 
-namespace NubeSync.Client.Data
+namespace NubeSync.Client
 {
     public interface IDataStore
     {

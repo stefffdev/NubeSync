@@ -3,7 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 
 namespace NubeSync.Client.SQLiteStoreEFCore
 {

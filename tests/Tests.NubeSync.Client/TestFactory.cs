@@ -1,7 +1,7 @@
 ﻿using System;
 using NSubstitute;
 using NubeSync.Client;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 
 namespace Tests.NubeSync.Client
 {

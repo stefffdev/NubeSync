@@ -1,8 +1,8 @@
 ﻿using System;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 using Xunit;
 
-namespace Tests.NubeSync.Client.Data.NubeOperation_test
+namespace Tests.NubeSync.Core.NubeOperation_test
 {
     public class Always
     {

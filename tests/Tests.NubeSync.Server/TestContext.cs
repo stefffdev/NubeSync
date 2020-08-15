@@ -10,6 +10,6 @@ namespace Tests.NubeSync.Server
 
         public DbSet<TestItem> Items { get; set; }
 
-        public DbSet<NubeOperation> Operations { get; set; }
+        public DbSet<NubeServerOperation> Operations { get; set; }
     }
 }

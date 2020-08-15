@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using NubeSync.Core;
 using NubeSync.Server.Data;
 
 namespace NubeSync.Server
@@ -30,16 +31,34 @@ namespace NubeSync.Server
                 return true;
             }
 
-            return context.Set<NubeOperation>().Where(
+            return context.Set<NubeServerOperation>().Where(
                 o => o.ItemId == itemId && o.TableName == tableName &&
                 o.ServerUpdatedAt >= laterThan &&
                 o.ProcessingType == ProcessingType.Processed &&
                 o.InstallationId != installationId).Any();
         }
 
-        public async Task ProcessOperationsAsync(DbContext context, IList<NubeOperation> operations)
+        public async Task ProcessOperationsAsync(
+            DbContext context,
+            IList<NubeOperation> operations,
+            string userId = "",
+            string installationId = "")
         {
-            foreach (var operationGroup in operations.GroupBy(x => new { x.TableName, x.ItemId }))
+            var serverOperations = operations.Select(x => new NubeServerOperation
+            {
+                Id = x.Id,
+                CreatedAt = x.CreatedAt,
+                ItemId = x.ItemId,
+                OldValue = x.OldValue,
+                Property = x.Property,
+                TableName = x.TableName,
+                Type = x.Type,
+                Value = x.Value,
+                UserId = userId,
+                InstallationId = installationId
+            }).ToList();
+
+            foreach (var operationGroup in serverOperations.GroupBy(x => new { x.TableName, x.ItemId }))
             {
                 var type = _GetTableType(operationGroup.Key.TableName);
                 if (type == null)
@@ -73,7 +92,7 @@ namespace NubeSync.Server
             string itemId,
             string propertyName)
         {
-            return await context.Set<NubeOperation>().AsNoTracking()
+            return await context.Set<NubeServerOperation>().AsNoTracking()
                 .Where(o => o.ItemId == itemId && o.Property == propertyName)
                 .MaxAsync(o => (DateTimeOffset?) o.CreatedAt) ?? DateTimeOffset.MinValue;
         }
@@ -91,7 +110,7 @@ namespace NubeSync.Server
                 .FirstOrDefault(t => t.Name == tableName);
         }
 
-        private async Task _ProcessAddsAsync(DbContext context, NubeOperation[] operations, Type type)
+        private async Task _ProcessAddsAsync(DbContext context, NubeServerOperation[] operations, Type type)
         {
             foreach (var operation in operations)
             {
@@ -101,7 +120,7 @@ namespace NubeSync.Server
                     throw new NullReferenceException($"Item of type {type} cannot be created");
                 }
 
-                if (newItem is NubeTable entity)
+                if (newItem is NubeServerTable entity)
                 {
                     entity.Id = operation.ItemId;
                     entity.UserId = operation.UserId;
@@ -112,12 +131,12 @@ namespace NubeSync.Server
             }
         }
 
-        private async Task _ProcessDeletesAsync(DbContext context, NubeOperation[] operations, Type type)
+        private async Task _ProcessDeletesAsync(DbContext context, NubeServerOperation[] operations, Type type)
         {
             foreach (var operation in operations)
             {
                 var item = await context.FindAsync(type, operation.ItemId);
-                if (item is NubeTable localItem)
+                if (item is NubeServerTable localItem)
                 {
                     var now = DateTimeOffset.Now;
                     localItem.DeletedAt = now;
@@ -126,7 +145,7 @@ namespace NubeSync.Server
             }
         }
 
-        private async Task _ProcessModifiesAsync(DbContext context, NubeOperation[] operations, Type type)
+        private async Task _ProcessModifiesAsync(DbContext context, NubeServerOperation[] operations, Type type)
         {
             if (!operations.Any())
             {
@@ -134,7 +153,7 @@ namespace NubeSync.Server
             }
 
             var item = await context.FindAsync(type, operations[0].ItemId);
-            if (item is NubeTable localItem)
+            if (item is NubeServerTable localItem)
             {
                 foreach (var operation in operations)
                 {
@@ -155,7 +174,7 @@ namespace NubeSync.Server
                         }
                         else
                         {
-                            var prop = type.GetProperty(operation.Property, 
+                            var prop = type.GetProperty(operation.Property,
                                 BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                             if (prop == null)
                             {

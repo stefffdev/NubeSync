@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace NubeSync.Client.Data
+namespace NubeSync.Core
 {
     public class ChangeTracker : IChangeTracker
     {
@@ -42,21 +42,23 @@ namespace NubeSync.Client.Data
             return Task.FromResult(operations);
         }
 
-        public Task<NubeOperation> TrackDeleteAsync<T>(T item) where T : NubeTable
+        public Task<List<NubeOperation>> TrackDeleteAsync<T>(T item) where T : NubeTable
         {
             if (string.IsNullOrEmpty(item.Id))
             {
                 throw new ArgumentNullException("item id");
             }
 
+            var operations = new List<NubeOperation>();
             var operation = new NubeOperation()
             {
                 TableName = item.GetType().Name,
                 ItemId = item.Id,
                 Type = OperationType.Deleted
             };
+            operations.Add(operation);
 
-            return Task.FromResult(operation);
+            return Task.FromResult(operations);
         }
 
         public Task<List<NubeOperation>> TrackModifyAsync<T>(T oldItem, T newItem) where T : NubeTable

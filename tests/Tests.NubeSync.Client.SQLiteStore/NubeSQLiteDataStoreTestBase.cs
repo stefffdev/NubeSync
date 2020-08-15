@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using NubeSync.Client.Data;
 using NubeSync.Client.SQLiteStore;
+using NubeSync.Core;
 
 namespace Tests.NubeSync.Client.SQLiteStore
 {

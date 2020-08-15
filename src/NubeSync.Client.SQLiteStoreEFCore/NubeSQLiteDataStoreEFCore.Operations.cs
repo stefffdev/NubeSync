@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 
 namespace NubeSync.Client.SQLiteStoreEFCore
 {

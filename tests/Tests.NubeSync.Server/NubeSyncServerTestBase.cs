@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using NubeSync.Core;
 using NubeSync.Server;
 using NubeSync.Server.Data;
 
@@ -25,19 +26,15 @@ namespace Tests.NubeSync.Server
             {
                 Id = "Op100",
                 ItemId = "1",
-                InstallationId = "InstallationId",
                 Type = OperationType.Added,
                 TableName = "TestItem",
-                UserId = "User",
             },
             new NubeOperation
             {
                 Id = "Op101",
                 ItemId = "1",
-                InstallationId = "InstallationId",
                 Type = OperationType.Modified,
                 TableName = "TestItem",
-                UserId = "User",
                 Property = "Name",
                 OldValue = null,
                 Value = "Name0",
@@ -46,10 +43,8 @@ namespace Tests.NubeSync.Server
             {
                 Id = "Op200",
                 ItemId = "1",
-                InstallationId = "InstallationId",
                 Type = OperationType.Modified,
                 TableName = "TestItem",
-                UserId = "User",
                 Property = "Name",
                 OldValue = "Name0",
                 Value = "Name1",
@@ -58,28 +53,24 @@ namespace Tests.NubeSync.Server
             {
                 Id = "Op300",
                 ItemId = "2",
-                InstallationId = "InstallationId2",
                 Type = OperationType.Added,
                 TableName = "TestItem",
-                UserId = "User",
             },
             new NubeOperation
             {
                 Id = "Op400",
                 ItemId = "2",
-                InstallationId = "InstallationId2",
                 Type = OperationType.Modified,
                 TableName = "TestItem",
-                UserId = "User",
                 Property = "Name",
                 OldValue = null,
                 Value = "Name2",
             }
         };
 
-        protected List<NubeOperation> ProcessedOperations = new List<NubeOperation>
+        protected List<NubeServerOperation> ProcessedOperations = new List<NubeServerOperation>
         {
-            new NubeOperation 
+            new NubeServerOperation
             { 
                 Id = "Op100",
                 ItemId = "1", 
@@ -90,7 +81,7 @@ namespace Tests.NubeSync.Server
                 UserId = "User",
                 ServerUpdatedAt = UpdatedEarly
             },
-            new NubeOperation
+            new NubeServerOperation
             {
                 Id = "Op101",
                 ItemId = "1",
@@ -104,7 +95,7 @@ namespace Tests.NubeSync.Server
                 OldValue = null,
                 Value = "Name0",
             },
-            new NubeOperation
+            new NubeServerOperation
             {
                 Id = "Op200",
                 ItemId = "1",
@@ -118,7 +109,7 @@ namespace Tests.NubeSync.Server
                 OldValue = "Name0",
                 Value = "Name1",
             },
-            new NubeOperation
+            new NubeServerOperation
             {
                 Id = "Op300",
                 ItemId = "2",
@@ -129,7 +120,7 @@ namespace Tests.NubeSync.Server
                 UserId = "User",
                 ServerUpdatedAt = UpdatedEarly
             },
-            new NubeOperation
+            new NubeServerOperation
             {
                 Id = "Op400",
                 ItemId = "2",

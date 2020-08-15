@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using NubeSync.Client.Data;
 using NubeSync.Client.Helpers;
+using NubeSync.Core;
 
 namespace NubeSync.Client
 {
@@ -177,8 +177,8 @@ namespace NubeSync.Client
 
         private async Task _SaveDeleteOperations<T>(T item) where T : NubeTable, new()
         {
-            var operation = await _changeTracker.TrackDeleteAsync(item);
-            if (!await _dataStore.AddOperationsAsync(operation))
+            var operations = await _changeTracker.TrackDeleteAsync(item);
+            if (!await _dataStore.AddOperationsAsync(operations.ToArray()))
             {
                 throw new StoreOperationFailedException($"Could not save delete operation for item {item.Id}");
             }

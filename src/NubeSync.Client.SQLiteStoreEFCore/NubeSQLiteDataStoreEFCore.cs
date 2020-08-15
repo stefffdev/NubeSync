@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 
 namespace NubeSync.Client.SQLiteStoreEFCore
 {

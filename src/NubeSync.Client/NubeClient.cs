@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 
 namespace NubeSync.Client
 {

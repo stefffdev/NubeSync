@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using NSubstitute;
 using NubeSync.Client;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 
 namespace Tests.NubeSync.Client.NubeClient_test
 {
@@ -43,7 +43,7 @@ namespace Tests.NubeSync.Client.NubeClient_test
             HttpClient = new HttpClient(HttpMessageHandler);
             ChangeTracker = TestFactory.CreateChangeTracker();
             ChangeTracker.TrackAddAsync(Arg.Any<TestItem>()).Returns(new List<NubeOperation>());
-            ChangeTracker.TrackDeleteAsync(Arg.Any<TestItem>()).Returns(new NubeOperation());
+            ChangeTracker.TrackDeleteAsync(Arg.Any<TestItem>()).Returns(new List<NubeOperation>());
             ChangeTracker.TrackModifyAsync(Arg.Any<TestItem>(), Arg.Any<TestItem>()).Returns(new List<NubeOperation>());
 
             ClientConfiguration.Server.Returns("https://MyServer/");

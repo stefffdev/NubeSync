@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using NubeSync.Server.Data;
+using NubeSync.Core;
 
 namespace NubeSync.Server
 {
@@ -24,6 +24,9 @@ namespace NubeSync.Server
         /// </summary>
         /// <param name="context">The DbContext for accessing the database.</param>
         /// <param name="operations">The operations to be processed.</param>
-        Task ProcessOperationsAsync(DbContext context, IList<NubeOperation> operations);
+        /// <param name="userId">The is of the user that processes the operations.</param>
+        /// <param name="installationId">The installationId that processes the operations.</param>
+        /// <returns></returns>
+        Task ProcessOperationsAsync(DbContext context, IList<NubeOperation> operations, string userId = "", string installationId = "");
     }
 }

@@ -4,7 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using NSubstitute;
-using NubeSync.Client.Data;
+using NubeSync.Client;
+using NubeSync.Core;
 using Tests.NubeSync.Client.NubeClient_test;
 using Xunit;
 

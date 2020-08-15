@@ -15,15 +15,15 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>stefffdev</Authors>
     <Description>NubeSync Client Framework with SQLite Storage using Entity Framework Core</Description>
     <PackageTags>mobile;data;sync;azure mobile app;</PackageTags>
     <PackageProjectUrl>https://github.com/stefffdev/NubeSync</PackageProjectUrl>
     <PackageId>NubeSync.Client.SQLiteStoreEFCore</PackageId>
     <Product>NubeSync.Client.SQLiteStoreEFCore</Product>
-    <Copyright>Copyright 2020 steffdev</Copyright>
-    <RepositoryUrl>https://github.com/stefffdev/NubeSync.Client</RepositoryUrl>
+    <Copyright>Copyright 2020 stefffdev</Copyright>
+    <RepositoryUrl>https://github.com/stefffdev/NubeSync</RepositoryUrl>
     <PackageIcon>Icon.png</PackageIcon>
   </PropertyGroup>
 

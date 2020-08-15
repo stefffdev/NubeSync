@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using NubeSync.Core;
 using NubeSync.Server;
 using NubeSync.Server.Data;
 using Xunit;
@@ -12,13 +12,11 @@ namespace Tests.NubeSync.Server.OperationService_test
     public class Last_changed_by_others : NubeSyncServerTestBase
     {
         [Fact]
-        public void Returns_true_for_empty_installation_id()
+        public void Returns_if_changed_by_others()
         {
-            var resultNull = Service.LastChangedByOthers(Context, "TestItem", "1", null, DateTimeOffset.Now);
-            var resultEmpty = Service.LastChangedByOthers(Context, "TestItem", "1", null, DateTimeOffset.Now);
+            var result = Service.LastChangedByOthers(Context, "TestItem", "1", "NotMyInstallationId", UpdatedEarly);
 
-            Assert.True(resultNull);
-            Assert.True(resultEmpty);
+            Assert.True(result);
         }
 
         [Fact]
@@ -30,11 +28,13 @@ namespace Tests.NubeSync.Server.OperationService_test
         }
 
         [Fact]
-        public void Returns_if_changed_by_others()
+        public void Returns_true_for_empty_installation_id()
         {
-            var result = Service.LastChangedByOthers(Context, "TestItem", "1", "NotMyInstallationId", UpdatedEarly);
+            var resultNull = Service.LastChangedByOthers(Context, "TestItem", "1", null, DateTimeOffset.Now);
+            var resultEmpty = Service.LastChangedByOthers(Context, "TestItem", "1", null, DateTimeOffset.Now);
 
-            Assert.True(result);
+            Assert.True(resultNull);
+            Assert.True(resultEmpty);
         }
     }
 
@@ -50,8 +50,9 @@ namespace Tests.NubeSync.Server.OperationService_test
             Service = new OperationService(types);
             Context.RemoveRange(Context.Items);
             Context.RemoveRange(Context.Operations);
+            await Context.SaveChangesAsync();
 
-            await Service.ProcessOperationsAsync(Context, NewOperations);
+            await Service.ProcessOperationsAsync(Context, NewOperations, "User");
 
             Assert.Equal(2, Context.Items.Count());
             Assert.Equal(5, Context.Operations.Count());
@@ -63,9 +64,6 @@ namespace Tests.NubeSync.Server.OperationService_test
             Assert.Equal("Name2", item2.Name);
             Assert.Equal("User", item2.UserId);
             Assert.True(item2.ServerUpdatedAt > DateTimeOffset.Now.AddMinutes(-1));
-            var operations = Context.Operations.Select(o => o.ToString());
-            var operationResult = string.Join(string.Empty, operations);
-            Assert.Equal("Id Op100, Added in table TestItem for item 1 with value  (old: ) 01.01.0001 00:00:00 +00:00Id Op101, Modified in table TestItem for item 1 with value Name0 (old: ) 01.01.0001 00:00:00 +00:00Id Op200, Modified in table TestItem for item 1 with value Name1 (old: Name0) 01.01.0001 00:00:00 +00:00Id Op300, Added in table TestItem for item 2 with value  (old: ) 01.01.0001 00:00:00 +00:00Id Op400, Modified in table TestItem for item 2 with value Name2 (old: ) 01.01.0001 00:00:00 +00:00", operationResult);
         }
 
         [Fact]
@@ -73,8 +71,9 @@ namespace Tests.NubeSync.Server.OperationService_test
         {
             Context.RemoveRange(Context.Items);
             Context.RemoveRange(Context.Operations);
+            await Context.SaveChangesAsync();
 
-            await Service.ProcessOperationsAsync(Context, NewOperations);
+            await Service.ProcessOperationsAsync(Context, NewOperations, "User");
 
             Assert.Equal(2, Context.Items.Count());
             Assert.Equal(5, Context.Operations.Count());
@@ -86,9 +85,38 @@ namespace Tests.NubeSync.Server.OperationService_test
             Assert.Equal("Name2", item2.Name);
             Assert.Equal("User", item2.UserId);
             Assert.True(item2.ServerUpdatedAt > DateTimeOffset.Now.AddMinutes(-1));
-            var operations = Context.Operations.Select(o => o.ToString());
-            var operationResult = string.Join(string.Empty, operations);
-            Assert.Equal("Id Op100, Added in table TestItem for item 1 with value  (old: ) 01.01.0001 00:00:00 +00:00Id Op101, Modified in table TestItem for item 1 with value Name0 (old: ) 01.01.0001 00:00:00 +00:00Id Op200, Modified in table TestItem for item 1 with value Name1 (old: Name0) 01.01.0001 00:00:00 +00:00Id Op300, Added in table TestItem for item 2 with value  (old: ) 01.01.0001 00:00:00 +00:00Id Op400, Modified in table TestItem for item 2 with value Name2 (old: ) 01.01.0001 00:00:00 +00:00", operationResult);
+        }
+
+        [Fact]
+        public async Task Modify_throws_for_empty_property()
+        {
+        }
+
+        [Fact]
+        public async Task Sets_processing_type_to_discarded_deleted_when_local_item_is_deleted()
+        {
+            var operations = new List<NubeOperation>
+            { 
+                new NubeOperation
+                {
+                    Id = "Op101",
+                    ItemId = "1",
+                    Type = OperationType.Modified,
+                    TableName = "TestItem",
+                    Property = "Name",
+                    OldValue = null,
+                    Value = "Name0",
+                }
+            };
+            Context.RemoveRange(Context.Items);
+            Context.RemoveRange(Context.Operations);
+            Context.Add(new TestItem { Id = "1", DeletedAt = DateTimeOffset.Now });
+            Context.SaveChanges();
+
+            await Service.ProcessOperationsAsync(Context, operations);
+
+            var operation = Context.Operations.Find("Op101");
+            Assert.Equal(ProcessingType.DiscardedDeleted, operation.ProcessingType);
         }
 
         [Fact]
@@ -103,25 +131,6 @@ namespace Tests.NubeSync.Server.OperationService_test
             var ex = await Assert.ThrowsAsync<NullReferenceException>(() => Service.ProcessOperationsAsync(Context, new List<NubeOperation> { operation }));
 
             Assert.Equal("The type NonExistent cannot be found", ex.Message);
-        }
-
-        [Fact]
-        public async Task Sets_processing_type_to_discarded_deleted_when_local_item_is_deleted()
-        {
-            Context.RemoveRange(Context.Items);
-            Context.Add(new TestItem { Id = "1", DeletedAt = DateTimeOffset.Now });
-            Context.SaveChanges();
-
-            await Service.ProcessOperationsAsync(Context, NewOperations);
-
-            var operation = Context.Operations.Find("Op100");
-            Assert.Equal(ProcessingType.DiscardedDeleted, operation.ProcessingType);
-        }
-
-        [Fact]
-        public async Task Modify_throws_for_empty_property()
-        {
-
         }
     }
 }

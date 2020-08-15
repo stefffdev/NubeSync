@@ -1,5 +1,5 @@
-﻿namespace NubeSync.Client.Data
-{
+﻿namespace NubeSync.Core
+{ 
     public enum OperationType : byte
     {
         Added,

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using NubeSync.Client.Data;
 using NubeSync.Client.SQLiteStore;
+using NubeSync.Core;
 using Xunit;
 
 namespace Tests.NubeSync.Client.SQLiteStore.NubeSQLiteDataStore_test

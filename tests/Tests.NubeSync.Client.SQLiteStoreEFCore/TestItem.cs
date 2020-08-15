@@ -1,5 +1,5 @@
 ﻿using System;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 
 namespace Tests.NubeSync.Client.SQLiteStoreEFCore
 {

@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 using SQLite;
 
 namespace NubeSync.Client.SQLiteStore

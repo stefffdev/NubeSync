@@ -15,14 +15,15 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.2-pre1</Version>
+    <Version>1.0.2</Version>
     <Authors>stefffdev</Authors>
     <Description>NubeSync Client Framework</Description>
     <PackageTags>mobile;data;sync;azure mobile app;</PackageTags>
     <PackageProjectUrl>https://github.com/stefffdev/NubeSync</PackageProjectUrl>
     <Product>NubeSync.Client</Product>
     <PackageId>NubeSync.Client</PackageId>
-    <RepositoryUrl>https://github.com/stefffdev/NubeSync.Client</RepositoryUrl>
+    <Copyright>Copyright 2020 stefffdev</Copyright>
+    <RepositoryUrl>https://github.com/stefffdev/NubeSync</RepositoryUrl>
     <PackageIcon>Icon.png</PackageIcon>
   </PropertyGroup>
 
@@ -41,6 +42,10 @@
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>Tests.$(AssemblyName)</_Parameter1>
     </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NubeSync.Core\NubeSync.Core.csproj" />
   </ItemGroup>
 
 </Project>

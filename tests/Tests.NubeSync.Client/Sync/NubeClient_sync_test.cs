@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using NubeSync.Client;
-using NubeSync.Client.Data;
+using NubeSync.Core;
 using Tests.NubeSync.Client.NubeClient_test;
 using Xunit;
 
