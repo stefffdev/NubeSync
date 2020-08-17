@@ -16,7 +16,7 @@ namespace NubeSync.Service.Data
 
         public DbSet<TodoItem> TodoItems { get; set; }
 
-        public DbSet<NubeOperation> Operations { get; set; }
+        public DbSet<NubeServerOperation> Operations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,11 +25,11 @@ namespace NubeSync.Service.Data
             // use a different clustered index than the string Id for performance reasons, 
             // this should be done for every table!
 
-            modelBuilder.Entity<NubeOperation>().HasKey(e => e.Id).IsClustered(false);
-            modelBuilder.Entity<NubeOperation>().HasIndex(e => e.ClusteredIndex).IsClustered();
-            modelBuilder.Entity<NubeOperation>().Property(e => e.ClusteredIndex).ValueGeneratedOnAdd();
-            modelBuilder.Entity<NubeOperation>().HasIndex(e => new { e.ItemId, e.Property, e.CreatedAt });
-            modelBuilder.Entity<NubeOperation>().HasIndex(e => new { e.ItemId, e.TableName, e.ServerUpdatedAt, e.ProcessingType, e.InstallationId });
+            modelBuilder.Entity<NubeServerOperation>().HasKey(e => e.Id).IsClustered(false);
+            modelBuilder.Entity<NubeServerOperation>().HasIndex(e => e.ClusteredIndex).IsClustered();
+            modelBuilder.Entity<NubeServerOperation>().Property(e => e.ClusteredIndex).ValueGeneratedOnAdd();
+            modelBuilder.Entity<NubeServerOperation>().HasIndex(e => new { e.ItemId, e.Property, e.CreatedAt });
+            modelBuilder.Entity<NubeServerOperation>().HasIndex(e => new { e.ItemId, e.TableName, e.ServerUpdatedAt, e.ProcessingType, e.InstallationId });
 
             modelBuilder.Entity<TodoItem>().HasKey(e => e.Id).IsClustered(false);
             modelBuilder.Entity<TodoItem>().HasIndex(e => e.ClusteredIndex).IsClustered();

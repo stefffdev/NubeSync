@@ -2,7 +2,7 @@
 
 namespace NubeSync.Service.DTO
 {
-    public class TodoItem : NubeTable
+    public class TodoItem : NubeServerTable
     {
         public string Name { get; set; }
 

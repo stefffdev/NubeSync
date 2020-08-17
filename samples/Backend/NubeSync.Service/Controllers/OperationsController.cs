@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Nube.SampleService.Hubs;
+using NubeSync.Core;
 using NubeSync.Server;
 using NubeSync.Server.Data;
 using NubeSync.Service.Data;
@@ -40,18 +41,11 @@ namespace NubeSync.Service.Controllers
             // UNCOMMENT THIS IF YOU WANT TO ACTIVATE AUTHENTICATION
             //HttpContext.VerifyUserHasAnyAcceptedScope(_authentication.ScopeRequiredByApi);
             var userId = _authentication.GetUserIdentifier(User);
-
             var installationId = Request.GetInstallationId();
 
             try
             {
-                operations.ForEach(o =>
-                {
-                    o.UserId = userId;
-                    o.InstallationId = installationId;
-                });
-
-                await _operationService.ProcessOperationsAsync(_context, operations);
+                await _operationService.ProcessOperationsAsync(_context, operations, userId, installationId);
             }
             catch (Exception ex)
             {
