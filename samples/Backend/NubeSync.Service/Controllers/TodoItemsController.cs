@@ -66,7 +66,7 @@ namespace NubeSync.Service.Controllers
             }
             else
             {
-                return await _context.TodoItems.ToListAsync();
+                return await _context.TodoItems.Where(i => !i.DeletedAt.HasValue).ToListAsync();
             }
         }
 

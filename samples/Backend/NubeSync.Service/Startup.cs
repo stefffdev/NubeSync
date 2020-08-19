@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Nube.SampleService.Hubs;
+using NubeSync.Core;
 using NubeSync.Server;
 using NubeSync.Service.Data;
 
@@ -45,6 +46,7 @@ namespace NubeSync.Service
 
             services.AddTransient<IAuthentication, Authentication>();
             services.AddTransient<IOperationService, OperationService>();
+            services.AddTransient<IChangeTracker, ChangeTracker>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

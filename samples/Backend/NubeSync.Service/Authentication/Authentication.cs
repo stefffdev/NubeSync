@@ -9,8 +9,12 @@ namespace NubeSync.Service
 
         public string GetUserIdentifier(ClaimsPrincipal user)
         {
-            string owner = (user.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier"))?.Value;
+            if (!user.Identity.IsAuthenticated)
+            {
+                return string.Empty;
+            }
 
+            string owner = (user.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier"))?.Value;
             if (string.IsNullOrEmpty(owner))
             {
                 throw new Exception("Unknown User");
