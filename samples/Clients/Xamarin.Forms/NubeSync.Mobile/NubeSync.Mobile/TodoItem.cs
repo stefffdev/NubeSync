@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NubeSync.Client.Data;
+﻿using NubeSync.Core;
 
 namespace NubeSync.Mobile
 {
