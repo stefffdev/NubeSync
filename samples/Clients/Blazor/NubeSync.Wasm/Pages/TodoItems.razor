@@ -1,0 +1,85 @@
+﻿@page "/todoitems"
+@using System.Text.Json;
+
+@inject HttpClient Http
+
+<h3>Todo Items</h3>
+
+<button @onclick="AddButtonClicked">Add Item</button>
+<span>&nbsp;</span>
+<button @onclick="ModifyButtonClicked">Modify First Item</button>
+<span>&nbsp;</span>
+<button @onclick="DeleteButtonClicked">Delete Last Item</button>
+<span>&nbsp;</span>
+<br />
+<br />
+
+@if (Items == null)
+{
+    <p>Loading...</p> 
+}
+else
+{
+    <ul>
+        @foreach (var item in Items)
+        {
+            <li>@item.Name @item.IsChecked</li>
+        }
+    </ul>
+}
+
+@code { 
+    
+    private List<TodoItem> Items { get; set; }
+
+    private async Task GetItems()
+    {
+        var result = await Http.GetAsync("todoitems");
+        if (result.IsSuccessStatusCode)
+        {
+            var content = await result.Content.ReadAsStringAsync();
+            Items = JsonSerializer.Deserialize<List<TodoItem>>(content,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetItems();
+    }
+
+    private async Task ModifyButtonClicked()
+    {
+        if (Items != null && Items.Count > 0)
+        {
+            var item = Items.First();
+            item.Name = DateTime.Now.ToLongTimeString();
+
+            await Http.PutAsJsonAsync("todoitems", item);
+        }
+
+        await GetItems();
+    }
+
+    private async Task AddButtonClicked()
+    {
+        var item = new TodoItem();
+        item.Id = Guid.NewGuid().ToString();
+        item.Name = "New Item";
+
+        await Http.PostAsJsonAsync("todoitems", item);
+
+        await GetItems();
+    }
+
+    private async Task DeleteButtonClicked()
+    {
+        if (Items != null && Items.Count > 0)
+        {
+            var customer = Items.Last();
+            await Http.DeleteAsync($"todoitems/{customer.Id}");
+        }
+
+        await GetItems();
+    } 
+}

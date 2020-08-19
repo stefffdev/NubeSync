@@ -36,6 +36,13 @@ namespace NubeSync.Service
             services.AddControllers();
             services.AddSignalR();
 
+            services.AddCors(o => o.AddPolicy("AllowedOrigins", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.AddTransient<IAuthentication, Authentication>();
             services.AddTransient<IOperationService, OperationService>();
         }
@@ -51,6 +58,8 @@ namespace NubeSync.Service
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors("AllowedOrigins");
 
             // UNCOMMENT THIS IF YOU WANT TO ACTIVATE AUTHENTICATION
             //app.UseAuthentication();
