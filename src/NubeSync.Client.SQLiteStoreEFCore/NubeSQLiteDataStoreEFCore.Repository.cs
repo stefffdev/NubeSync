@@ -16,9 +16,9 @@ namespace NubeSync.Client.SQLiteStoreEFCore
 
         public async Task<bool> DeleteAsync<T>(T item) where T : NubeTable, new()
         {
-            var dbItem = await Set<T>().FindAsync(item.Id);
+            var dbItem = await Set<T>().FindAsync(item.Id).ConfigureAwait(false);
             Set<T>().Remove(dbItem);
-            return await SaveChangesAsync() > 0;
+            return await SaveChangesAsync().ConfigureAwait(false) > 0;
         }
 
         public Task<IQueryable<T>> FindByAsync<T>(Expression<Func<T, bool>> predicate) where T : NubeTable, new()
@@ -28,7 +28,7 @@ namespace NubeSync.Client.SQLiteStoreEFCore
 
         public async Task<T> FindByIdAsync<T>(string? id) where T : NubeTable?, new()
         {
-            var entity = await Set<T>().FindAsync(id);
+            var entity = await Set<T>().FindAsync(id).ConfigureAwait(false);
             if (entity != null)
             {
                 Entry(entity).State = EntityState.Detached;
@@ -39,8 +39,8 @@ namespace NubeSync.Client.SQLiteStoreEFCore
 
         public async Task<bool> InsertAsync<T>(T item) where T : NubeTable, new()
         {
-            await Set<T>().AddAsync(item);
-            return await SaveChangesAsync() > 0;
+            await Set<T>().AddAsync(item).ConfigureAwait(false);
+            return await SaveChangesAsync().ConfigureAwait(false) > 0;
         }
 
         public Task<bool> TableExistsAsync<T>() where T : NubeTable, new()
@@ -60,7 +60,7 @@ namespace NubeSync.Client.SQLiteStoreEFCore
         {
             Set<T>().Attach(item);
             Entry(item).State = EntityState.Modified;
-            return await SaveChangesAsync() > 0;
+            return await SaveChangesAsync().ConfigureAwait(false) > 0;
         }
     }
 }

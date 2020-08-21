@@ -13,7 +13,7 @@ namespace NubeSync.Client.SQLiteStore
                 return true;
             }
 
-            return await Database.InsertAllAsync(operations) > 0;
+            return await Database.InsertAllAsync(operations).ConfigureAwait(false) > 0;
         }
 
         public async Task<bool> DeleteOperationsAsync(params NubeOperation[] operations)
@@ -27,7 +27,7 @@ namespace NubeSync.Client.SQLiteStore
 
             foreach (var operation in operations)
             {
-                deletedRecords += await Database.DeleteAsync(operation);
+                deletedRecords += await Database.DeleteAsync(operation).ConfigureAwait(false);
             }
 
             return deletedRecords > 0;
@@ -37,10 +37,10 @@ namespace NubeSync.Client.SQLiteStore
         {
             if (numberOfOperations != 0)
             {
-                return (await Database.Table<NubeOperation>().OrderBy(o => o.CreatedAt).Take(numberOfOperations).ToListAsync()).AsQueryable();
+                return (await Database.Table<NubeOperation>().OrderBy(o => o.CreatedAt).Take(numberOfOperations).ToListAsync().ConfigureAwait(false)).AsQueryable();
             }
 
-            return (await Database.Table<NubeOperation>().OrderBy(o => o.CreatedAt).ToListAsync()).AsQueryable();
+            return (await Database.Table<NubeOperation>().OrderBy(o => o.CreatedAt).ToListAsync().ConfigureAwait(false)).AsQueryable();
         }
     }
 }

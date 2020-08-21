@@ -69,21 +69,21 @@ namespace NubeSync.Server
                 var added = operationGroup
                     .Where(o => o.Type == OperationType.Added)
                     .OrderBy(o => o.CreatedAt).ToArray();
-                await _ProcessAddsAsync(context, added, type);
+                await _ProcessAddsAsync(context, added, type).ConfigureAwait(false);
 
                 var modified = operationGroup
                     .Where(o => o.Type == OperationType.Modified)
                     .OrderBy(o => o.CreatedAt).ToArray();
-                await _ProcessModifiesAsync(context, modified, type);
+                await _ProcessModifiesAsync(context, modified, type).ConfigureAwait(false);
 
                 var deleted = operationGroup
                     .Where(o => o.Type == OperationType.Deleted)
                     .OrderBy(o => o.CreatedAt).ToArray();
-                await _ProcessDeletesAsync(context, deleted, type);
+                await _ProcessDeletesAsync(context, deleted, type).ConfigureAwait(false);
 
                 operationGroup.ToList().ForEach(o => o.ServerUpdatedAt = DateTimeOffset.Now);
-                await context.AddRangeAsync(operationGroup.ToList());
-                await context.SaveChangesAsync();
+                await context.AddRangeAsync(operationGroup.ToList()).ConfigureAwait(false);
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
 
@@ -94,7 +94,7 @@ namespace NubeSync.Server
         {
             return await context.Set<NubeServerOperation>().AsNoTracking()
                 .Where(o => o.ItemId == itemId && o.Property == propertyName)
-                .MaxAsync(o => (DateTimeOffset?) o.CreatedAt) ?? DateTimeOffset.MinValue;
+                .MaxAsync(o => (DateTimeOffset?) o.CreatedAt).ConfigureAwait(false) ?? DateTimeOffset.MinValue;
         }
 
         private Type? _GetTableType(string tableName)
@@ -127,7 +127,7 @@ namespace NubeSync.Server
                     entity.ServerUpdatedAt = DateTimeOffset.Now;
                 }
 
-                await context.AddAsync(newItem);
+                await context.AddAsync(newItem).ConfigureAwait(false);
             }
         }
 
@@ -135,7 +135,7 @@ namespace NubeSync.Server
         {
             foreach (var operation in operations)
             {
-                var item = await context.FindAsync(type, operation.ItemId);
+                var item = await context.FindAsync(type, operation.ItemId).ConfigureAwait(false);
                 if (item is NubeServerTable localItem)
                 {
                     var now = DateTimeOffset.Now;
@@ -152,7 +152,7 @@ namespace NubeSync.Server
                 return;
             }
 
-            var item = await context.FindAsync(type, operations[0].ItemId);
+            var item = await context.FindAsync(type, operations[0].ItemId).ConfigureAwait(false);
             if (item is NubeServerTable localItem)
             {
                 foreach (var operation in operations)
@@ -168,7 +168,7 @@ namespace NubeSync.Server
                             throw new InvalidOperationException($"Property of operation {operation.Id} cannot be empty");
                         }
 
-                        if (await _GetLastChangeForPropertyAsync(context, operation.ItemId, operation.Property) > operation.CreatedAt)
+                        if (await _GetLastChangeForPropertyAsync(context, operation.ItemId, operation.Property).ConfigureAwait(false) > operation.CreatedAt)
                         {
                             operation.ProcessingType = ProcessingType.DiscaredOutdated;
                         }

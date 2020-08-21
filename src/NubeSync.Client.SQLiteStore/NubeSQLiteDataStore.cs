@@ -15,15 +15,15 @@ namespace NubeSync.Client.SQLiteStore
 
         public async Task AddTableAsync<T>() where T : NubeTable, new()
         {
-            await Database.CreateTableAsync<T>(CreateFlags.ImplicitPK);
+            await Database.CreateTableAsync<T>(CreateFlags.ImplicitPK).ConfigureAwait(false);
         }
 
         public async Task InitializeAsync()
         {
-            await Database.CreateTableAsync<NubeOperation>(CreateFlags.ImplicitPK);
-            await Database.CreateIndexAsync(nameof(NubeOperation), nameof(NubeOperation.CreatedAt));
+            await Database.CreateTableAsync<NubeOperation>(CreateFlags.ImplicitPK).ConfigureAwait(false);
+            await Database.CreateIndexAsync(nameof(NubeOperation), nameof(NubeOperation.CreatedAt)).ConfigureAwait(false);
 
-            await Database.CreateTableAsync<NubeSetting>(CreateFlags.ImplicitPK);
+            await Database.CreateTableAsync<NubeSetting>(CreateFlags.ImplicitPK).ConfigureAwait(false);
         }
     }
 }
