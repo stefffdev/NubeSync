@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using NubeSync.Client.Helpers;
 using NubeSync.Core;
 
 namespace NubeSync.Client
@@ -74,20 +73,7 @@ namespace NubeSync.Client
                         }
                         else
                         {
-                            var localItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
-                            if (localItem == null)
-                            {
-                                localItem = Activator.CreateInstance<T>();
-                                if (localItem == null)
-                                {
-                                    throw new PullOperationFailedException($"Cannot create item of type {tableName}");
-                                }
-
-                                localItem.Id = item.Id;
-                            }
-
-                            ObjectHelper.CopyProperties(item, localItem);
-                            await SaveAsync(localItem, disableChangeTracker: true).ConfigureAwait(false);
+                            await SaveAsync(item, disableChangeTracker: true).ConfigureAwait(false);
                         }
                     }
 
@@ -122,7 +108,7 @@ namespace NubeSync.Client
             try
             {
                 var operations = await _dataStore.GetOperationsAsync(OPERATIONS_PAGE_SIZE).ConfigureAwait(false);
-                
+
                 while (operations.Any())
                 {
                     await _AuthenticateAsync().ConfigureAwait(false);
@@ -186,7 +172,7 @@ namespace NubeSync.Client
         private bool _IsItemDeleted(string content, string itemId)
         {
             if (JsonDocument.Parse(content).RootElement.EnumerateArray()
-                .First(x => x.GetProperty("id").GetString() == itemId).TryGetProperty("deletedAt", out var deletedAt ))
+                .First(x => x.GetProperty("id").GetString() == itemId).TryGetProperty("deletedAt", out var deletedAt))
             {
                 return !string.IsNullOrEmpty(deletedAt.GetString());
             }
