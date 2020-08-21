@@ -54,9 +54,9 @@ namespace NubeSync.Client
         /// <param name="tableUrl">Optional: The url to the table controller on the server, if left empty the name of the type will be used.</param>
         public async Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable, new()
         {
-            await _dataStore.AddTableAsync<T>();
+            await _dataStore.AddTableAsync<T>().ConfigureAwait(false);
 
-            if (!await _dataStore.TableExistsAsync<T>())
+            if (!await _dataStore.TableExistsAsync<T>().ConfigureAwait(false))
             {
                 throw new ArgumentException($"The table type {typeof(T).Name} cannot be found in the data store");
             }

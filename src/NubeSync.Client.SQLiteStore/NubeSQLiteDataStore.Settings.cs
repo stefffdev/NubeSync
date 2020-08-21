@@ -6,7 +6,7 @@ namespace NubeSync.Client.SQLiteStore
     {
         public async Task<string?> GetSettingAsync(string key)
         {
-            var setting = await Database.FindAsync<NubeSetting>(key);
+            var setting = await Database.FindAsync<NubeSetting>(key).ConfigureAwait(false);
 
             if (setting != null)
             {
@@ -18,17 +18,17 @@ namespace NubeSync.Client.SQLiteStore
 
         public async Task<bool> SetSettingAsync(string key, string value)
         {
-            var setting = await Database.FindAsync<NubeSetting>(key);
+            var setting = await Database.FindAsync<NubeSetting>(key).ConfigureAwait(false);
 
             if (setting == null)
             {
                 setting = new NubeSetting() { Id = key, Value = value };
-                return await Database.InsertAsync(setting) > 0;
+                return await Database.InsertAsync(setting).ConfigureAwait(false) > 0;
             }
             else
             {
                 setting.Value = value;
-                return await Database.UpdateAsync(setting) > 0;
+                return await Database.UpdateAsync(setting).ConfigureAwait(false) > 0;
             }
         }
     }

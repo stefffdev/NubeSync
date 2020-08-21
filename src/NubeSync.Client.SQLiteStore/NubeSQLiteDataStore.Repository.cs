@@ -10,27 +10,27 @@ namespace NubeSync.Client.SQLiteStore
     {
         public async Task<IQueryable<T>> AllAsync<T>() where T : NubeTable, new()
         {
-            return (await Database.Table<T>().ToListAsync()).AsQueryable();
+            return (await Database.Table<T>().ToListAsync().ConfigureAwait(false)).AsQueryable();
         }
 
         public async Task<bool> DeleteAsync<T>(T item) where T : NubeTable, new()
         {
-            return await Database.DeleteAsync(item) > 0;
+            return await Database.DeleteAsync(item).ConfigureAwait(false) > 0;
         }
 
         public async Task<IQueryable<T>> FindByAsync<T>(Expression<Func<T, bool>> predicate) where T : NubeTable, new()
         {
-            return (await Database.Table<T>().Where(predicate).ToListAsync()).AsQueryable();
+            return (await Database.Table<T>().Where(predicate).ToListAsync().ConfigureAwait(false)).AsQueryable();
         }
 
         public async Task<T> FindByIdAsync<T>(string? id) where T : NubeTable?, new()
         {
-            return await Database.FindAsync<T>(id);
+            return await Database.FindAsync<T>(id).ConfigureAwait(false);
         }
 
         public async Task<bool> InsertAsync<T>(T item) where T : NubeTable, new()
         {
-            return await Database.InsertAsync(item) > 0;
+            return await Database.InsertAsync(item).ConfigureAwait(false) > 0;
         }
 
         public Task<bool> TableExistsAsync<T>() where T : NubeTable, new()
@@ -40,7 +40,7 @@ namespace NubeSync.Client.SQLiteStore
 
         public async Task<bool> UpdateAsync<T>(T item) where T : NubeTable, new()
         {
-            return await Database.UpdateAsync(item) > 0;
+            return await Database.UpdateAsync(item).ConfigureAwait(false) > 0;
         }
     }
 }

@@ -24,12 +24,12 @@ namespace NubeSync.Client
                 throw new InvalidOperationException("Cannot delete item without id");
             }
 
-            if (await _dataStore.DeleteAsync(item))
+            if (await _dataStore.DeleteAsync(item).ConfigureAwait(false))
             {
                 if (!disableChangeTracker)
                 {
-                    await _SaveDeleteOperations(item);
-                    await _RemoveObsoleteOperationsAfterDeleteAsync(item);
+                    await _SaveDeleteOperations(item).ConfigureAwait(false);
+                    await _RemoveObsoleteOperationsAfterDeleteAsync(item).ConfigureAwait(false);
                 }
             }
             else
@@ -48,7 +48,7 @@ namespace NubeSync.Client
         {
             _IsValidTable<T>();
 
-            return await _dataStore.FindByAsync(predicate);
+            return await _dataStore.FindByAsync(predicate).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace NubeSync.Client
         {
             _IsValidTable<T>();
 
-            return await _dataStore.AllAsync<T>();
+            return await _dataStore.AllAsync<T>().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace NubeSync.Client
         {
             _IsValidTable<T>();
 
-            return await _dataStore.FindByIdAsync<T>(id);
+            return await _dataStore.FindByIdAsync<T>(id).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace NubeSync.Client
                 item.UpdatedAt = now;
             }
 
-            var existingItem = await _dataStore.FindByIdAsync<T>(item.Id);
+            var existingItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
             if (existingItem == null)
             {
                 if (string.IsNullOrEmpty(item.Id))
@@ -104,11 +104,11 @@ namespace NubeSync.Client
                     item.CreatedAt = now;
                 }
 
-                if (await _dataStore.InsertAsync(item))
+                if (await _dataStore.InsertAsync(item).ConfigureAwait(false))
                 {
                     if (!disableChangeTracker)
                     {
-                        await _SaveAddOperations(item);
+                        await _SaveAddOperations(item).ConfigureAwait(false);
                     }
                 }
                 else
@@ -119,11 +119,11 @@ namespace NubeSync.Client
             else
             {
                 var oldItem = ObjectHelper.Clone(existingItem);
-                if (await _dataStore.UpdateAsync(item))
+                if (await _dataStore.UpdateAsync(item).ConfigureAwait(false))
                 {
                     if (!disableChangeTracker)
                     {
-                        await _SaveModifyOperations(item, oldItem);
+                        await _SaveModifyOperations(item, oldItem).ConfigureAwait(false);
                     }
                 }
                 else
@@ -143,9 +143,9 @@ namespace NubeSync.Client
 
         private async Task _RemoveObsoleteOperationsAfterDeleteAsync<T>(T item) where T : NubeTable, new()
         {
-            var obsoleteOperations = (await _dataStore.GetOperationsAsync())
+            var obsoleteOperations = (await _dataStore.GetOperationsAsync().ConfigureAwait(false))
                 .Where(o => o.ItemId == item.Id && o.Type != OperationType.Deleted).ToList();
-            if (!await _dataStore.DeleteOperationsAsync(obsoleteOperations.ToArray()))
+            if (!await _dataStore.DeleteOperationsAsync(obsoleteOperations.ToArray()).ConfigureAwait(false))
             {
                 throw new StoreOperationFailedException($"Could not delete obsolete operations for deleted item {item.Id}");
             }
@@ -156,11 +156,11 @@ namespace NubeSync.Client
             var obsoleteOperations = new List<NubeOperation>();
             foreach (var operation in operations)
             {
-                obsoleteOperations.AddRange((await _dataStore.GetOperationsAsync())
+                obsoleteOperations.AddRange((await _dataStore.GetOperationsAsync().ConfigureAwait(false))
                     .Where(o => o.ItemId == operation.ItemId && o.Property == operation.Property && o.Type == OperationType.Modified));
             }
 
-            if (!await _dataStore.DeleteOperationsAsync(obsoleteOperations.ToArray()))
+            if (!await _dataStore.DeleteOperationsAsync(obsoleteOperations.ToArray()).ConfigureAwait(false))
             {
                 throw new StoreOperationFailedException($"Could not delete obsolete operations for modified item");
             }
@@ -168,8 +168,8 @@ namespace NubeSync.Client
 
         private async Task _SaveAddOperations<T>(T item) where T : NubeTable, new()
         {
-            var operations = await _changeTracker.TrackAddAsync(item);
-            if (!await _dataStore.AddOperationsAsync(operations.ToArray()))
+            var operations = await _changeTracker.TrackAddAsync(item).ConfigureAwait(false);
+            if (!await _dataStore.AddOperationsAsync(operations.ToArray()).ConfigureAwait(false))
             {
                 throw new StoreOperationFailedException($"Could not save add operations for item {item.Id}");
             }
@@ -177,8 +177,8 @@ namespace NubeSync.Client
 
         private async Task _SaveDeleteOperations<T>(T item) where T : NubeTable, new()
         {
-            var operations = await _changeTracker.TrackDeleteAsync(item);
-            if (!await _dataStore.AddOperationsAsync(operations.ToArray()))
+            var operations = await _changeTracker.TrackDeleteAsync(item).ConfigureAwait(false);
+            if (!await _dataStore.AddOperationsAsync(operations.ToArray()).ConfigureAwait(false))
             {
                 throw new StoreOperationFailedException($"Could not save delete operation for item {item.Id}");
             }
@@ -186,13 +186,13 @@ namespace NubeSync.Client
 
         private async Task _SaveModifyOperations<T>(T item, T oldItem) where T : NubeTable, new()
         {
-            var operations = await _changeTracker.TrackModifyAsync(oldItem, item);
-            if (!await _dataStore.AddOperationsAsync(operations.ToArray()))
+            var operations = await _changeTracker.TrackModifyAsync(oldItem, item).ConfigureAwait(false);
+            if (!await _dataStore.AddOperationsAsync(operations.ToArray()).ConfigureAwait(false))
             {
                 throw new StoreOperationFailedException($"Could not save modify operations for item {item.Id}");
             }
 
-            await _RemoveObsoleteOperationsAfterModifyAsync(operations);
+            await _RemoveObsoleteOperationsAfterModifyAsync(operations).ConfigureAwait(false);
         }
     }
 }

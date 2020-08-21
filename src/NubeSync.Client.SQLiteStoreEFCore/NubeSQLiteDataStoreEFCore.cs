@@ -33,7 +33,7 @@ namespace NubeSync.Client.SQLiteStoreEFCore
         {
             if (Database.GetPendingMigrations().Count() > 0)
             {
-                await Database.GetInfrastructure().GetService<IMigrator>().MigrateAsync();
+                await Database.GetInfrastructure().GetService<IMigrator>().MigrateAsync().ConfigureAwait(false);
             }
         }
 

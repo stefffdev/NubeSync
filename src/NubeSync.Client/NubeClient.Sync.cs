@@ -23,7 +23,7 @@ namespace NubeSync.Client
         /// <returns>True if there are unsent operations in the local storage.</returns>
         public async Task<bool> HasPendingOperationsAsync()
         {
-            return (await _dataStore.GetOperationsAsync()).Count() > 0;
+            return (await _dataStore.GetOperationsAsync().ConfigureAwait(false)).Count() > 0;
         }
 
         /// <summary>
@@ -48,33 +48,33 @@ namespace NubeSync.Client
                 var tableName = typeof(T).Name;
                 var parameters = string.Empty;
 
-                var lastSync = await _GetLastSyncTimestampAsync(tableName);
+                var lastSync = await _GetLastSyncTimestampAsync(tableName).ConfigureAwait(false);
                 if (lastSync.HasValue)
                 {
                     parameters = $"?laterThan={lastSync.Value.ToUniversalTime():yyyy-MM-ddTHH:mm:ss.fffZ}";
                 }
 
-                await _AuthenticateAsync();
+                await _AuthenticateAsync().ConfigureAwait(false);
 
-                var result = await _httpClient.GetAsync($"/{_nubeTableTypes[tableName].Trim('/')}{parameters}", cancelToken);
+                var result = await _httpClient.GetAsync($"/{_nubeTableTypes[tableName].Trim('/')}{parameters}", cancelToken).ConfigureAwait(false);
                 if (result.IsSuccessStatusCode)
                 {
-                    var content = await result.Content.ReadAsStringAsync();
+                    var content = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
 
                     var items = JsonSerializer.Deserialize<List<T>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                     foreach (var item in items)
                     {
                         if (_IsItemDeleted(content, item.Id))
                         {
-                            var deleteItem = await _dataStore.FindByIdAsync<T>(item.Id);
+                            var deleteItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
                             if (deleteItem != null)
                             {
-                                await DeleteAsync(deleteItem, disableChangeTracker: true);
+                                await DeleteAsync(deleteItem, disableChangeTracker: true).ConfigureAwait(false);
                             }
                         }
                         else
                         {
-                            var localItem = await _dataStore.FindByIdAsync<T>(item.Id);
+                            var localItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
                             if (localItem == null)
                             {
                                 localItem = Activator.CreateInstance<T>();
@@ -87,11 +87,11 @@ namespace NubeSync.Client
                             }
 
                             ObjectHelper.CopyProperties(item, localItem);
-                            await SaveAsync(localItem, disableChangeTracker: true);
+                            await SaveAsync(localItem, disableChangeTracker: true).ConfigureAwait(false);
                         }
                     }
 
-                    await _SetLastSyncTimestampAsync(tableName);
+                    await _SetLastSyncTimestampAsync(tableName).ConfigureAwait(false);
                     return items.Count;
                 }
                 else
@@ -121,20 +121,20 @@ namespace NubeSync.Client
 
             try
             {
-                var operations = await _dataStore.GetOperationsAsync(OPERATIONS_PAGE_SIZE);
+                var operations = await _dataStore.GetOperationsAsync(OPERATIONS_PAGE_SIZE).ConfigureAwait(false);
                 
                 while (operations.Any())
                 {
-                    await _AuthenticateAsync();
+                    await _AuthenticateAsync().ConfigureAwait(false);
 
                     var options = new JsonSerializerOptions { IgnoreNullValues = true };
                     var content = new StringContent(JsonSerializer.Serialize(operations, options),
                         Encoding.UTF8, "application/json");
-                    var result = await _httpClient.PostAsync("/operations", content, cancelToken);
+                    var result = await _httpClient.PostAsync("/operations", content, cancelToken).ConfigureAwait(false);
 
                     if (result.IsSuccessStatusCode)
                     {
-                        await _dataStore.DeleteOperationsAsync(operations.ToArray());
+                        await _dataStore.DeleteOperationsAsync(operations.ToArray()).ConfigureAwait(false);
                     }
                     else
                     {
@@ -142,7 +142,7 @@ namespace NubeSync.Client
 
                         try
                         {
-                            message = await result.Content.ReadAsStringAsync();
+                            message = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
                         }
                         catch (Exception)
                         {
@@ -151,7 +151,7 @@ namespace NubeSync.Client
                         throw new PushOperationFailedException($"Cannot push operations to the server: {result.StatusCode} {message}");
                     }
 
-                    operations = await _dataStore.GetOperationsAsync(OPERATIONS_PAGE_SIZE);
+                    operations = await _dataStore.GetOperationsAsync(OPERATIONS_PAGE_SIZE).ConfigureAwait(false);
                 }
             }
             finally
@@ -166,7 +166,7 @@ namespace NubeSync.Client
         {
             if (_authentication != null)
             {
-                var token = await _authentication.GetBearerTokenAsync();
+                var token = await _authentication.GetBearerTokenAsync().ConfigureAwait(false);
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
         }
@@ -175,7 +175,7 @@ namespace NubeSync.Client
         {
             DateTimeOffset? result = null;
 
-            if (DateTimeOffset.TryParse(await _dataStore.GetSettingAsync($"lastSync-{tableName}"), out var lastSync))
+            if (DateTimeOffset.TryParse(await _dataStore.GetSettingAsync($"lastSync-{tableName}").ConfigureAwait(false), out var lastSync))
             {
                 result = lastSync;
             }
@@ -196,7 +196,7 @@ namespace NubeSync.Client
 
         private async Task _SetLastSyncTimestampAsync(string tableName)
         {
-            await _dataStore.SetSettingAsync($"lastSync-{tableName}", DateTimeOffset.Now.ToString());
+            await _dataStore.SetSettingAsync($"lastSync-{tableName}", DateTimeOffset.Now.ToString()).ConfigureAwait(false);
         }
     }
 }

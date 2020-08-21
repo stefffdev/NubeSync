@@ -13,8 +13,8 @@ namespace NubeSync.Client.SQLiteStoreEFCore
                 return true;
             }
 
-            await NubeOperations.AddRangeAsync(operations);
-            return await SaveChangesAsync() > 0;
+            await NubeOperations.AddRangeAsync(operations).ConfigureAwait(false);
+            return await SaveChangesAsync().ConfigureAwait(false) > 0;
         }
 
         public async Task<bool> DeleteOperationsAsync(params NubeOperation[] operations)
@@ -30,9 +30,9 @@ namespace NubeSync.Client.SQLiteStoreEFCore
             {
                 foreach (var operation in operations)
                 {
-                    var entity = await NubeOperations.FindAsync(operation.Id);
+                    var entity = await NubeOperations.FindAsync(operation.Id).ConfigureAwait(false);
                     NubeOperations.Remove(entity);
-                    deletedRecords += await SaveChangesAsync();
+                    deletedRecords += await SaveChangesAsync().ConfigureAwait(false);
                 }
 
                 transaction.Commit();
