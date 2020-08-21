@@ -21,7 +21,8 @@ namespace NubeSync.Core
         public virtual Dictionary<string, string?> GetProperties()
         {
             var result = new Dictionary<string, string?>();
-            IList<PropertyInfo> props = new List<PropertyInfo>(GetType().GetProperties()
+            IList<PropertyInfo> props = new List<PropertyInfo>(GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Static)
                 .Where(p => p.Name != nameof(Id) && 
                 p.Name != "ClusteredIndex" &&
                 p.Name != "UserId" && 
