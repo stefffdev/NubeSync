@@ -42,7 +42,7 @@ namespace Tests.NubeSync.Client.NubeClient_test
         [Fact]
         public void Sets_the_server_base_address()
         {
-            Assert.Equal(ClientConfiguration.Server.ToLower(), HttpClient.BaseAddress.ToString());
+            Assert.Equal(ServerUrl.ToLower(), HttpClient.BaseAddress.ToString());
         }
     }
 }

@@ -13,7 +13,6 @@ namespace Tests.NubeSync.Client.NubeClient_test
         protected List<NubeOperation> AddedOperations;
         protected INubeAuthentication Authentication;
         protected IChangeTracker ChangeTracker;
-        protected INubeClientConfiguration ClientConfiguration;
         protected IDataStore DataStore;
         protected HttpClient HttpClient;
         protected MockHttpMessageHandler HttpMessageHandler;
@@ -21,6 +20,7 @@ namespace Tests.NubeSync.Client.NubeClient_test
         protected TestItem Item;
         protected NubeClient NubeClient;
         protected List<NubeOperation> RemovedOperations;
+        protected string ServerUrl = "https://MyServer/";
 
         public NubeClientTestBase()
         {
@@ -38,7 +38,6 @@ namespace Tests.NubeSync.Client.NubeClient_test
             DataStore.DeleteOperationsAsync(Arg.Any<NubeOperation[]>()).Returns(true);
             DataStore.AddOperationsAsync(Arg.Any<NubeOperation[]>()).Returns(true);
             DataStore.DeleteAsync(Arg.Any<TestItem>()).Returns(true);
-            ClientConfiguration = TestFactory.CreateClientConfiguration();
             HttpMessageHandler = new MockHttpMessageHandler();
             HttpClient = new HttpClient(HttpMessageHandler);
             ChangeTracker = TestFactory.CreateChangeTracker();
@@ -46,9 +45,7 @@ namespace Tests.NubeSync.Client.NubeClient_test
             ChangeTracker.TrackDeleteAsync(Arg.Any<TestItem>()).Returns(new List<NubeOperation>());
             ChangeTracker.TrackModifyAsync(Arg.Any<TestItem>(), Arg.Any<TestItem>()).Returns(new List<NubeOperation>());
 
-            ClientConfiguration.Server.Returns("https://MyServer/");
-
-            NubeClient = new NubeClient(DataStore, ClientConfiguration, Authentication, HttpClient, ChangeTracker, InstallationId);
+            NubeClient = new NubeClient(DataStore, ServerUrl, Authentication, HttpClient, ChangeTracker, InstallationId);
         }
 
         protected async Task AddTablesAsync()

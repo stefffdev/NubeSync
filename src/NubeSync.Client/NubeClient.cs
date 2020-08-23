@@ -10,7 +10,6 @@ namespace NubeSync.Client
     {
         private readonly INubeAuthentication? _authentication;
         private readonly IChangeTracker _changeTracker;
-        private readonly INubeClientConfiguration _configuration;
         private readonly IDataStore _dataStore;
         private readonly HttpClient _httpClient;
         private readonly Dictionary<string, string> _nubeTableTypes;
@@ -19,27 +18,26 @@ namespace NubeSync.Client
         /// Creates a instance of the NubeSync client
         /// </summary>
         /// <param name="dataStore">The local storage</param>
-        /// <param name="configuration">Configuration containing the sync server</param>
+        /// <param name="url">The address of the server hosting the NubeSync REST APIs</param>
         /// <param name="authentication">Optional: a authentication provider, if the server requires the requests to be authenticated.</param>
         /// <param name="httpClient">Optional: the HttpClient that is used for communicating with the server.</param>
         /// <param name="changeTracker">Optional: the change tracker generating the operations.</param>
         /// <param name="installationId">Optional: a unique installation id, see https://github.com/stefffdev/NubeSync/wiki/Advanced:-Don't-download-unnecessary-records-when-syncing</param>
         public NubeClient(
             IDataStore dataStore,
-            INubeClientConfiguration configuration,
+            string url,
             INubeAuthentication? authentication = null,
             HttpClient? httpClient = null,
             IChangeTracker? changeTracker = null,
             string? installationId = null)
         {
             _dataStore = dataStore;
-            _configuration = configuration;
             _authentication = authentication;
             _httpClient = httpClient ?? new HttpClient();
             _changeTracker = changeTracker ?? new ChangeTracker();
 
             _nubeTableTypes = new Dictionary<string, string>();
-            _httpClient.BaseAddress = new Uri(_configuration.Server);
+            _httpClient.BaseAddress = new Uri(url);
 
             if (!string.IsNullOrEmpty(installationId))
             {
