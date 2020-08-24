@@ -41,6 +41,11 @@ namespace Tests.NubeSync.Client.NubeClient_test
 
             var installationIdHeader = HttpClient.DefaultRequestHeaders.Where(h => h.Key == "NUBE-INSTALLATION-ID").First();
             Assert.NotNull(installationIdHeader.Value.First());
+
+            await NubeClient.PushChangesAsync();
+            var installationIdHeader2 = HttpClient.DefaultRequestHeaders.Where(h => h.Key == "NUBE-INSTALLATION-ID").First();
+
+            Assert.Equal(installationIdHeader.Value.First(), installationIdHeader2.Value.First());
         }
 
         [Fact]
