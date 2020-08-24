@@ -20,8 +20,8 @@ namespace NubeSync.Mobile
     [DesignTimeVisible(false)]
     public partial class MainPage : ContentPage
     {
-        private NubeSQLiteDataStore _dataStore;
-        private NubeClient _nubeClient;
+        private readonly NubeSQLiteDataStore _dataStore;
+        private readonly NubeClient _nubeClient;
 
         public MainPage()
         {
@@ -37,17 +37,14 @@ namespace NubeSync.Mobile
             };
             var httpClient = new HttpClient(clientHandler);
 
-            NubeClientConfiguration configuration = new NubeClientConfiguration()
-            {
-                Server = "https://localhost:5001/"
-            };
+            var server = "https://localhost:5001/";
 
             if (DeviceInfo.Platform == DevicePlatform.Android)
             {
-                configuration = new NubeClientConfiguration() { Server = "https://10.0.2.2:5001/" };
+                server = "https://10.0.2.2:5001/";
             }
 
-            _nubeClient = new NubeClient(_dataStore, configuration, httpClient: httpClient);
+            _nubeClient = new NubeClient(_dataStore, server, httpClient: httpClient);
         }
 
         private async void ContentPage_Appearing(object sender, EventArgs e)
