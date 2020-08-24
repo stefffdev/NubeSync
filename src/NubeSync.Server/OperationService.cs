@@ -49,19 +49,21 @@ namespace NubeSync.Server
             string userId = "",
             string installationId = "")
         {
-            var serverOperations = operations.Select(x => new NubeServerOperation
-            {
-                Id = x.Id,
-                CreatedAt = x.CreatedAt,
-                ItemId = x.ItemId,
-                OldValue = x.OldValue,
-                Property = x.Property,
-                TableName = x.TableName,
-                Type = x.Type,
-                Value = x.Value,
-                UserId = userId,
-                InstallationId = installationId
-            }).ToList();
+            var serverOperations = operations
+                .Where(o => !_OperationExists(context, o))
+                .Select(x => new NubeServerOperation
+                {
+                    Id = x.Id,
+                    CreatedAt = x.CreatedAt,
+                    ItemId = x.ItemId,
+                    OldValue = x.OldValue,
+                    Property = x.Property,
+                    TableName = x.TableName,
+                    Type = x.Type,
+                    Value = x.Value,
+                    UserId = userId,
+                    InstallationId = installationId
+                }).ToList();
 
             foreach (var operationGroup in serverOperations.GroupBy(x => new { x.TableName, x.ItemId }))
             {
@@ -125,6 +127,11 @@ namespace NubeSync.Server
             }
 
             return type;
+        }
+
+        private bool _OperationExists(DbContext context, NubeOperation operation)
+        {
+            return context.Set<NubeServerOperation>().Any(o => o.Id == operation.Id);
         }
 
         private async Task _ProcessAddsAsync(DbContext context, NubeServerOperation[] operations, Type type)

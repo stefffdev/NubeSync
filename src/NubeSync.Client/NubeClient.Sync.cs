@@ -132,9 +132,7 @@ namespace NubeSync.Client
                         {
                             message = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
                         }
-                        catch (Exception)
-                        {
-                        }
+                        catch (Exception) { }
 
                         throw new PushOperationFailedException($"Cannot push operations to the server: {result.StatusCode} {message}");
                     }
