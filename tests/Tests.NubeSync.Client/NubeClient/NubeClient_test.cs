@@ -32,17 +32,26 @@ namespace Tests.NubeSync.Client.NubeClient_test
     public class Always : NubeClientTestBase
     {
         [Fact]
-        public void Adds_the_installation_id_to_the_headers()
+        public async Task Adds_the_installation_id_to_the_headers()
         {
-            var installationIdHeader = HttpClient.DefaultRequestHeaders.Where(h => h.Key == "NUBE-INSTALLATION-ID").First();
+            await AddTablesAsync();
+            DataStore.InsertAsync(Arg.Any<TestItem>()).Returns(true);
 
-            Assert.Equal(InstallationId, installationIdHeader.Value.First());
+            await NubeClient.PullTableAsync<TestItem>();
+
+            var installationIdHeader = HttpClient.DefaultRequestHeaders.Where(h => h.Key == "NUBE-INSTALLATION-ID").First();
+            Assert.NotNull(installationIdHeader.Value.First());
+
+            await NubeClient.PushChangesAsync();
+            var installationIdHeader2 = HttpClient.DefaultRequestHeaders.Where(h => h.Key == "NUBE-INSTALLATION-ID").First();
+
+            Assert.Equal(installationIdHeader.Value.First(), installationIdHeader2.Value.First());
         }
 
         [Fact]
         public void Sets_the_server_base_address()
         {
-            Assert.Equal(ClientConfiguration.Server.ToLower(), HttpClient.BaseAddress.ToString());
+            Assert.Equal(ServerUrl.ToLower(), HttpClient.BaseAddress.ToString());
         }
     }
 }

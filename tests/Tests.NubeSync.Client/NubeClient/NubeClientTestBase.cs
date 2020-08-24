@@ -13,21 +13,19 @@ namespace Tests.NubeSync.Client.NubeClient_test
         protected List<NubeOperation> AddedOperations;
         protected INubeAuthentication Authentication;
         protected IChangeTracker ChangeTracker;
-        protected INubeClientConfiguration ClientConfiguration;
         protected IDataStore DataStore;
         protected HttpClient HttpClient;
         protected MockHttpMessageHandler HttpMessageHandler;
-        protected string InstallationId;
         protected TestItem Item;
         protected NubeClient NubeClient;
         protected List<NubeOperation> RemovedOperations;
+        protected string ServerUrl = "https://MyServer/";
 
         public NubeClientTestBase()
         {
             AddedOperations = new List<NubeOperation>();
             RemovedOperations = new List<NubeOperation>();
 
-            InstallationId = "my/installation";
             Item = TestFactory.CreateTestItem("MyId", "MyName", DateTimeOffset.Now);
             Authentication = TestFactory.CreateAuthentication();
             DataStore = TestFactory.CreateDataStore();
@@ -38,7 +36,6 @@ namespace Tests.NubeSync.Client.NubeClient_test
             DataStore.DeleteOperationsAsync(Arg.Any<NubeOperation[]>()).Returns(true);
             DataStore.AddOperationsAsync(Arg.Any<NubeOperation[]>()).Returns(true);
             DataStore.DeleteAsync(Arg.Any<TestItem>()).Returns(true);
-            ClientConfiguration = TestFactory.CreateClientConfiguration();
             HttpMessageHandler = new MockHttpMessageHandler();
             HttpClient = new HttpClient(HttpMessageHandler);
             ChangeTracker = TestFactory.CreateChangeTracker();
@@ -46,9 +43,7 @@ namespace Tests.NubeSync.Client.NubeClient_test
             ChangeTracker.TrackDeleteAsync(Arg.Any<TestItem>()).Returns(new List<NubeOperation>());
             ChangeTracker.TrackModifyAsync(Arg.Any<TestItem>(), Arg.Any<TestItem>()).Returns(new List<NubeOperation>());
 
-            ClientConfiguration.Server.Returns("https://MyServer/");
-
-            NubeClient = new NubeClient(DataStore, ClientConfiguration, Authentication, HttpClient, ChangeTracker, InstallationId);
+            NubeClient = new NubeClient(DataStore, ServerUrl, Authentication, HttpClient, ChangeTracker);
         }
 
         protected async Task AddTablesAsync()

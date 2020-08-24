@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using NubeSync.Client.Helpers;
 using NubeSync.Core;
 
 namespace NubeSync.Client
@@ -118,12 +117,11 @@ namespace NubeSync.Client
             }
             else
             {
-                var oldItem = ObjectHelper.Clone(existingItem);
                 if (await _dataStore.UpdateAsync(item).ConfigureAwait(false))
                 {
                     if (!disableChangeTracker)
                     {
-                        await _SaveModifyOperations(item, oldItem).ConfigureAwait(false);
+                        await _SaveModifyOperations(item, existingItem).ConfigureAwait(false);
                     }
                 }
                 else

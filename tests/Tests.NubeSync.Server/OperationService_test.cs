@@ -43,11 +43,7 @@ namespace Tests.NubeSync.Server.OperationService_test
         [Fact]
         public async Task Gets_a_registered_type()
         {
-            var types = new Dictionary<string, Type>
-            {
-                { "TestItem", typeof(TestItem) }
-            };
-            Service = new OperationService(types);
+            Service = new OperationService(typeof(TestItem));
             Context.RemoveRange(Context.Items);
             Context.RemoveRange(Context.Operations);
             await Context.SaveChangesAsync();

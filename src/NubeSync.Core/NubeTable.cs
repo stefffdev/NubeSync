@@ -21,8 +21,10 @@ namespace NubeSync.Core
         public virtual Dictionary<string, string?> GetProperties()
         {
             var result = new Dictionary<string, string?>();
-            IList<PropertyInfo> props = new List<PropertyInfo>(GetType().GetProperties()
-                .Where(p => p.Name != nameof(Id) && 
+            IList<PropertyInfo> props = new List<PropertyInfo>(GetType()
+                .GetProperties()
+                .Where(p => p.CanWrite &&
+                p.Name != nameof(Id) && 
                 p.Name != "ClusteredIndex" &&
                 p.Name != "UserId" && 
                 p.Name != "ServerUpdatedAt" && 

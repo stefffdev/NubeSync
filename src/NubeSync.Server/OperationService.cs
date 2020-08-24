@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +13,15 @@ namespace NubeSync.Server
 {
     public class OperationService : IOperationService
     {
-        private readonly Dictionary<string, Type>? _nubeTableTypes;
+        private readonly Dictionary<string, Tuple<Type, Func<object>>> _nubeTableTypes =
+            new Dictionary<string, Tuple<Type, Func<object>>>();
 
-        public OperationService(Dictionary<string, Type>? nubeTableTypes = null)
+        public OperationService(params Type[] types)
         {
-            _nubeTableTypes = nubeTableTypes;
+            foreach (var type in types)
+            {
+                RegisterTable(type);
+            }
         }
 
         public bool LastChangedByOthers(
@@ -44,19 +49,21 @@ namespace NubeSync.Server
             string userId = "",
             string installationId = "")
         {
-            var serverOperations = operations.Select(x => new NubeServerOperation
-            {
-                Id = x.Id,
-                CreatedAt = x.CreatedAt,
-                ItemId = x.ItemId,
-                OldValue = x.OldValue,
-                Property = x.Property,
-                TableName = x.TableName,
-                Type = x.Type,
-                Value = x.Value,
-                UserId = userId,
-                InstallationId = installationId
-            }).ToList();
+            var serverOperations = operations
+                .Where(o => !_OperationExists(context, o))
+                .Select(x => new NubeServerOperation
+                {
+                    Id = x.Id,
+                    CreatedAt = x.CreatedAt,
+                    ItemId = x.ItemId,
+                    OldValue = x.OldValue,
+                    Property = x.Property,
+                    TableName = x.TableName,
+                    Type = x.Type,
+                    Value = x.Value,
+                    UserId = userId,
+                    InstallationId = installationId
+                }).ToList();
 
             foreach (var operationGroup in serverOperations.GroupBy(x => new { x.TableName, x.ItemId }))
             {
@@ -87,6 +94,11 @@ namespace NubeSync.Server
             }
         }
 
+        public void RegisterTable(Type type)
+        {
+            _nubeTableTypes.Add(type.Name, Tuple.Create(type, Expression.Lambda<Func<object>>(Expression.New(type)).Compile()));
+        }
+
         private async Task<DateTimeOffset> _GetLastChangeForPropertyAsync(
             DbContext context,
             string itemId,
@@ -99,22 +111,34 @@ namespace NubeSync.Server
 
         private Type? _GetTableType(string tableName)
         {
-            if (_nubeTableTypes != null && _nubeTableTypes.ContainsKey(tableName))
+            if (_nubeTableTypes.ContainsKey(tableName))
             {
-                return _nubeTableTypes[tableName];
+                return _nubeTableTypes[tableName].Item1;
             }
 
-            return AppDomain.CurrentDomain
+            var type = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .SelectMany(x => x.GetTypes())
                 .FirstOrDefault(t => t.Name == tableName);
+
+            if (type != null)
+            {
+                RegisterTable(type);
+            }
+
+            return type;
+        }
+
+        private bool _OperationExists(DbContext context, NubeOperation operation)
+        {
+            return context.Set<NubeServerOperation>().Any(o => o.Id == operation.Id);
         }
 
         private async Task _ProcessAddsAsync(DbContext context, NubeServerOperation[] operations, Type type)
         {
             foreach (var operation in operations)
             {
-                var newItem = Activator.CreateInstance(type);
+                var newItem = _nubeTableTypes[type.Name].Item2();
                 if (newItem == null)
                 {
                     throw new NullReferenceException($"Item of type {type} cannot be created");

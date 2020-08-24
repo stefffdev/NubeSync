@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using NubeSync.Client.Helpers;
 using NubeSync.Core;
 
 namespace NubeSync.Client
@@ -55,6 +54,7 @@ namespace NubeSync.Client
                 }
 
                 await _AuthenticateAsync().ConfigureAwait(false);
+                await _SetInstallationId();
 
                 var result = await _httpClient.GetAsync($"/{_nubeTableTypes[tableName].Trim('/')}{parameters}", cancelToken).ConfigureAwait(false);
                 if (result.IsSuccessStatusCode)
@@ -74,20 +74,7 @@ namespace NubeSync.Client
                         }
                         else
                         {
-                            var localItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
-                            if (localItem == null)
-                            {
-                                localItem = Activator.CreateInstance<T>();
-                                if (localItem == null)
-                                {
-                                    throw new PullOperationFailedException($"Cannot create item of type {tableName}");
-                                }
-
-                                localItem.Id = item.Id;
-                            }
-
-                            ObjectHelper.CopyProperties(item, localItem);
-                            await SaveAsync(localItem, disableChangeTracker: true).ConfigureAwait(false);
+                            await SaveAsync(item, disableChangeTracker: true).ConfigureAwait(false);
                         }
                     }
 
@@ -122,10 +109,11 @@ namespace NubeSync.Client
             try
             {
                 var operations = await _dataStore.GetOperationsAsync(OPERATIONS_PAGE_SIZE).ConfigureAwait(false);
-                
+
                 while (operations.Any())
                 {
                     await _AuthenticateAsync().ConfigureAwait(false);
+                    await _SetInstallationId();
 
                     var options = new JsonSerializerOptions { IgnoreNullValues = true };
                     var content = new StringContent(JsonSerializer.Serialize(operations, options),
@@ -144,9 +132,7 @@ namespace NubeSync.Client
                         {
                             message = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
                         }
-                        catch (Exception)
-                        {
-                        }
+                        catch (Exception) { }
 
                         throw new PushOperationFailedException($"Cannot push operations to the server: {result.StatusCode} {message}");
                     }
@@ -186,12 +172,28 @@ namespace NubeSync.Client
         private bool _IsItemDeleted(string content, string itemId)
         {
             if (JsonDocument.Parse(content).RootElement.EnumerateArray()
-                .First(x => x.GetProperty("id").GetString() == itemId).TryGetProperty("deletedAt", out var deletedAt ))
+                .First(x => x.GetProperty("id").GetString() == itemId).TryGetProperty("deletedAt", out var deletedAt))
             {
                 return !string.IsNullOrEmpty(deletedAt.GetString());
             }
 
             return false;
+        }
+
+        private async Task _SetInstallationId()
+        {
+            if (!_httpClient.DefaultRequestHeaders.Contains(INSTALLATION_ID_HEADER))
+            {
+                var installationIdKey = "installationId";
+                var id = await _dataStore.GetSettingAsync(installationIdKey);
+                if (id == null || string.IsNullOrWhiteSpace(id))
+                {
+                    id = Guid.NewGuid().ToString();
+                    await _dataStore.SetSettingAsync(installationIdKey, id);
+                }
+
+                _httpClient.DefaultRequestHeaders.Add(INSTALLATION_ID_HEADER, id);
+            }
         }
 
         private async Task _SetLastSyncTimestampAsync(string tableName)

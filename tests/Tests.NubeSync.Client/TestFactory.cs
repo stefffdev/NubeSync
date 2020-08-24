@@ -17,11 +17,6 @@ namespace Tests.NubeSync.Client
             return Substitute.For<IChangeTracker>();
         }
 
-        public static INubeClientConfiguration CreateClientConfiguration()
-        {
-            return Substitute.For<INubeClientConfiguration>();
-        }
-
         public static IDataStore CreateDataStore()
         {
             return Substitute.For<IDataStore>();
