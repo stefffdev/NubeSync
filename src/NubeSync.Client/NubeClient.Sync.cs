@@ -54,6 +54,7 @@ namespace NubeSync.Client
                 }
 
                 await _AuthenticateAsync().ConfigureAwait(false);
+                await _SetInstallationId();
 
                 var result = await _httpClient.GetAsync($"/{_nubeTableTypes[tableName].Trim('/')}{parameters}", cancelToken).ConfigureAwait(false);
                 if (result.IsSuccessStatusCode)
@@ -112,6 +113,7 @@ namespace NubeSync.Client
                 while (operations.Any())
                 {
                     await _AuthenticateAsync().ConfigureAwait(false);
+                    await _SetInstallationId();
 
                     var options = new JsonSerializerOptions { IgnoreNullValues = true };
                     var content = new StringContent(JsonSerializer.Serialize(operations, options),
@@ -178,6 +180,22 @@ namespace NubeSync.Client
             }
 
             return false;
+        }
+
+        private async Task _SetInstallationId()
+        {
+            if (!_httpClient.DefaultRequestHeaders.Contains(INSTALLATION_ID_HEADER))
+            {
+                var installationIdKey = "installationId";
+                var id = await _dataStore.GetSettingAsync(installationIdKey);
+                if (id == null || string.IsNullOrWhiteSpace(id))
+                {
+                    id = Guid.NewGuid().ToString();
+                    await _dataStore.SetSettingAsync(installationIdKey, id);
+                }
+
+                _httpClient.DefaultRequestHeaders.Add(INSTALLATION_ID_HEADER, id);
+            }
         }
 
         private async Task _SetLastSyncTimestampAsync(string tableName)

@@ -109,7 +109,7 @@ namespace NubeSync.Server
 
         private Type? _GetTableType(string tableName)
         {
-            if (_nubeTableTypes != null && _nubeTableTypes.ContainsKey(tableName))
+            if (_nubeTableTypes.ContainsKey(tableName))
             {
                 return _nubeTableTypes[tableName].Item1;
             }

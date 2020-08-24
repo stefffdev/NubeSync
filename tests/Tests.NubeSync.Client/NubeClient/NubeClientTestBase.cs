@@ -16,7 +16,6 @@ namespace Tests.NubeSync.Client.NubeClient_test
         protected IDataStore DataStore;
         protected HttpClient HttpClient;
         protected MockHttpMessageHandler HttpMessageHandler;
-        protected string InstallationId;
         protected TestItem Item;
         protected NubeClient NubeClient;
         protected List<NubeOperation> RemovedOperations;
@@ -27,7 +26,6 @@ namespace Tests.NubeSync.Client.NubeClient_test
             AddedOperations = new List<NubeOperation>();
             RemovedOperations = new List<NubeOperation>();
 
-            InstallationId = "my/installation";
             Item = TestFactory.CreateTestItem("MyId", "MyName", DateTimeOffset.Now);
             Authentication = TestFactory.CreateAuthentication();
             DataStore = TestFactory.CreateDataStore();
@@ -45,7 +43,7 @@ namespace Tests.NubeSync.Client.NubeClient_test
             ChangeTracker.TrackDeleteAsync(Arg.Any<TestItem>()).Returns(new List<NubeOperation>());
             ChangeTracker.TrackModifyAsync(Arg.Any<TestItem>(), Arg.Any<TestItem>()).Returns(new List<NubeOperation>());
 
-            NubeClient = new NubeClient(DataStore, ServerUrl, Authentication, HttpClient, ChangeTracker, InstallationId);
+            NubeClient = new NubeClient(DataStore, ServerUrl, Authentication, HttpClient, ChangeTracker);
         }
 
         protected async Task AddTablesAsync()

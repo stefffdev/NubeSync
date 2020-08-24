@@ -8,6 +8,7 @@ namespace NubeSync.Client
 {
     public partial class NubeClient
     {
+        private const string INSTALLATION_ID_HEADER = "NUBE-INSTALLATION-ID";
         private readonly INubeAuthentication? _authentication;
         private readonly IChangeTracker _changeTracker;
         private readonly IDataStore _dataStore;
@@ -22,14 +23,12 @@ namespace NubeSync.Client
         /// <param name="authentication">Optional: a authentication provider, if the server requires the requests to be authenticated.</param>
         /// <param name="httpClient">Optional: the HttpClient that is used for communicating with the server.</param>
         /// <param name="changeTracker">Optional: the change tracker generating the operations.</param>
-        /// <param name="installationId">Optional: a unique installation id, see https://github.com/stefffdev/NubeSync/wiki/Advanced:-Don't-download-unnecessary-records-when-syncing</param>
         public NubeClient(
             IDataStore dataStore,
             string url,
             INubeAuthentication? authentication = null,
             HttpClient? httpClient = null,
-            IChangeTracker? changeTracker = null,
-            string? installationId = null)
+            IChangeTracker? changeTracker = null)
         {
             _dataStore = dataStore;
             _authentication = authentication;
@@ -38,11 +37,6 @@ namespace NubeSync.Client
 
             _nubeTableTypes = new Dictionary<string, string>();
             _httpClient.BaseAddress = new Uri(url);
-
-            if (!string.IsNullOrEmpty(installationId))
-            {
-                _httpClient.DefaultRequestHeaders.Add("NUBE-INSTALLATION-ID", installationId);
-            }
         }
 
         /// <summary>
