@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NubeSync.Core;
 using NubeSync.Server;
@@ -9,10 +10,10 @@ namespace Tests.NubeSync.Server
 {
     public class NubeSyncServerTestBase
     {
-        protected TestContext Context;
         protected static DateTimeOffset UpdatedEarly = new DateTimeOffset(2020, 6, 25, 6, 0, 0, TimeSpan.Zero);
-        protected static DateTimeOffset UpdatedMid = new DateTimeOffset(2020, 6, 25, 12, 0, 0, TimeSpan.Zero);
         protected static DateTimeOffset UpdatedLate = new DateTimeOffset(2020, 6, 25, 18, 0, 0, TimeSpan.Zero);
+        protected static DateTimeOffset UpdatedMid = new DateTimeOffset(2020, 6, 25, 12, 0, 0, TimeSpan.Zero);
+        protected TestContext Context;
 
         protected List<TestItem> Items = new List<TestItem>
         {
@@ -71,9 +72,9 @@ namespace Tests.NubeSync.Server
         protected List<NubeServerOperation> ProcessedOperations = new List<NubeServerOperation>
         {
             new NubeServerOperation
-            { 
+            {
                 Id = "Op100",
-                ItemId = "1", 
+                ItemId = "1",
                 InstallationId = "InstallationId",
                 ProcessingType = ProcessingType.Processed,
                 Type = OperationType.Added,
@@ -150,6 +151,61 @@ namespace Tests.NubeSync.Server
             Context.AddRange(Items);
             Context.AddRange(ProcessedOperations);
             Context.SaveChanges();
+        }
+
+        protected async Task ClearDatabaseAsync()
+        {
+            Context.RemoveRange(Context.Items);
+            Context.RemoveRange(Context.Operations);
+            await Context.SaveChangesAsync();
+        }
+
+        protected List<NubeOperation> GetAddOperation()
+        {
+            return new List<NubeOperation>
+            {
+                new NubeOperation
+                {
+                    Id = "Op101",
+                    ItemId = "1",
+                    Type = OperationType.Added,
+                    TableName = "TestItem",
+                    Property = "Name",
+                    OldValue = null,
+                    Value = "Name0",
+                }
+            };
+        }
+
+        protected List<NubeOperation> GetDeleteOperation()
+        {
+            return new List<NubeOperation>
+            {
+                new NubeOperation
+                {
+                    Id = "Op101",
+                    ItemId = "1",
+                    Type = OperationType.Deleted,
+                    TableName = "TestItem",
+                }
+            };
+        }
+
+        protected List<NubeOperation> GetModifyOperation()
+        {
+            return new List<NubeOperation>
+            {
+                new NubeOperation
+                {
+                    Id = "Op101",
+                    ItemId = "1",
+                    Type = OperationType.Modified,
+                    TableName = "TestItem",
+                    Property = "Name",
+                    OldValue = null,
+                    Value = "Name0",
+                }
+            };
         }
     }
 }
