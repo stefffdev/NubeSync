@@ -119,11 +119,11 @@ namespace Tests.NubeSync.Server.OperationService_test
         [Fact]
         public async Task Skips_operations_that_already_were_processed()
         {
-            Context.HasSaved = false;
+            Context.HasCalledSave = false;
 
             await Service.ProcessOperationsAsync(Context, NewOperations, "User");
 
-            Assert.False(Context.HasSaved);
+            Assert.False(Context.HasCalledSave);
         }
 
         [Fact]
@@ -194,7 +194,12 @@ namespace Tests.NubeSync.Server.OperationService_test
         [Fact]
         public async Task Modify_does_nothing_when_operations_are_empty()
         {
-            Assert.True(false);
+            await ClearDatabaseAsync();
+            Context.HasCalledFind = false;
+
+            await Service.ProcessOperationsAsync(Context, GetAddOperation());
+
+            Assert.False(Context.HasCalledFind);
         }
 
         [Fact]
@@ -215,49 +220,113 @@ namespace Tests.NubeSync.Server.OperationService_test
         [Fact]
         public async Task Modify_sets_processing_type_to_discarded_outdated_when_newer_operation_was_processed()
         {
-            Assert.True(false);
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var operations = GetModifyOperation();
+            operations[0].CreatedAt = DateTimeOffset.Now;
+            await Service.ProcessOperationsAsync(Context, operations);
+            var secondOperations = GetModifyOperation();
+            secondOperations[0].Id = "Op102";
+            secondOperations[0].CreatedAt = DateTimeOffset.Now.AddMinutes(-5);
+
+            await Service.ProcessOperationsAsync(Context, secondOperations);
+
+            var operation = Context.Operations.Find("Op102");
+            Assert.Equal(ProcessingType.DiscaredOutdated, operation.ProcessingType);
         }
 
         [Fact]
         public async Task Modify_sets_server_updated_at()
         {
-            Assert.True(false);
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+
+            await Service.ProcessOperationsAsync(Context, GetModifyOperation());
+
+            foreach (var operation in Context.Operations)
+            {
+                Assert.True(operation.ServerUpdatedAt > DateTimeOffset.Now.AddSeconds(-1));
+            }
         }
 
         [Fact]
         public async Task Modify_sets_the_property()
         {
-            Assert.True(false);
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var newValue = "a new value";
+            var operations = GetModifyOperation();
+            operations[0].Value = newValue;
+
+            await Service.ProcessOperationsAsync(Context, operations);
+
+            var item = Context.Items.Find(operations[0].ItemId);
+            Assert.Equal(newValue, item.Name);
         }
 
         [Fact]
         public async Task Modify_throws_for_empty_property()
         {
-            Assert.True(false);
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var operations = GetModifyOperation();
+            operations[0].Property = null;
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => Service.ProcessOperationsAsync(Context, operations));
+
+            Assert.Equal("Property of operation Op101 cannot be empty", ex.Message);
         }
 
         [Fact]
         public async Task Modify_throws_then_the_property_name_is_empty()
         {
-            Assert.True(false);
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var operations = GetModifyOperation();
+            operations[0].Property = null;
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => Service.ProcessOperationsAsync(Context, operations));
+
+            Assert.Equal("Property of operation Op101 cannot be empty", ex.Message);
         }
 
         [Fact]
         public async Task Modify_throws_when_item_cannot_be_found()
         {
-            Assert.True(false);
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var operations = GetModifyOperation();
+            operations[0].ItemId = null;
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => Service.ProcessOperationsAsync(Context, operations));
+
+            Assert.Equal($"Item with the id {operations[0].ItemId} cannot be found", ex.Message);
         }
 
         [Fact]
         public async Task Modify_throws_when_property_does_not_exist()
         {
-            Assert.True(false);
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var operations = GetModifyOperation();
+            operations[0].Property = "UnknownProperty";
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => Service.ProcessOperationsAsync(Context, operations));
+
+            Assert.Equal($"Property {operations[0].Property} not found on item Tests.NubeSync.Server.TestItem", ex.Message);
         }
 
         [Fact]
         public async Task Modify_throws_when_value_cannot_be_converted()
         {
-            Assert.True(false);
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var operations = GetModifyOperation();
+            operations[0].Property = "Value";
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => Service.ProcessOperationsAsync(Context, operations));
+
+            Assert.Equal($"Unable to convert value of operation {operations[0].Id}: Name0 is not a valid value for Int32. (Parameter 'value')", ex.Message);
         }
     }
 }
