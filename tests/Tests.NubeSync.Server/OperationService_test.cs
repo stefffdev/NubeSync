@@ -80,6 +80,24 @@ namespace Tests.NubeSync.Server.OperationService_test
         }
 
         [Fact]
+        public async Task Processes_multiple_updates()
+        {
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var operations1 = GetModifyOperation();
+            operations1[0].Id = "Op001";
+            operations1[0].Value = "n1";
+            var operations2 = GetModifyOperation();
+            operations2[0].Value = "n2";
+            operations1.AddRange(operations2);
+
+            await Service.ProcessOperationsAsync(Context, operations1);
+
+            var item = Context.Items.Find("1");
+            Assert.Equal("n2", item.Name);
+        }
+
+        [Fact]
         public async Task Sets_server_updated_at()
         {
             await ClearDatabaseAsync();
