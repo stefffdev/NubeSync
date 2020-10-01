@@ -15,6 +15,7 @@ using Nube.SampleService.Hubs;
 using NubeSync.Core;
 using NubeSync.Server;
 using NubeSync.Service.Data;
+using NubeSync.Service.DTO;
 
 namespace NubeSync.Service
 {
@@ -45,7 +46,7 @@ namespace NubeSync.Service
             }));
 
             services.AddTransient<IAuthentication, Authentication>();
-            services.AddTransient<IOperationService, OperationService>();
+            services.AddTransient<IOperationService>(s => new OperationService(typeof(TodoItem)));
             services.AddTransient<IChangeTracker, ChangeTracker>();
         }
 
