@@ -14,6 +14,7 @@ namespace NubeSync.Client
     public partial class NubeClient
     {
         private const int OPERATIONS_PAGE_SIZE = 100;
+        private const int PULL_PAGE_SIZE = 10;
         private bool _isSyncing;
 
         /// <summary>
@@ -45,23 +46,38 @@ namespace NubeSync.Client
                 _IsValidTable<T>();
 
                 var tableName = typeof(T).Name;
-                var parameters = string.Empty;
 
+                // TODO die Methode refactoren
+
+                var timestampParameter = string.Empty;
                 var lastSync = await _GetLastSyncTimestampAsync(tableName).ConfigureAwait(false);
                 if (lastSync.HasValue)
                 {
-                    parameters = $"?laterThan={lastSync.Value.ToUniversalTime():yyyy-MM-ddTHH:mm:ss.fffZ}";
+                    timestampParameter = $"&laterThan={lastSync.Value.ToUniversalTime():yyyy-MM-ddTHH:mm:ss.fffZ}";
                 }
 
-                await _AuthenticateAsync().ConfigureAwait(false);
                 await _SetInstallationId();
 
-                var result = await _httpClient.GetAsync($"/{_nubeTableTypes[tableName].Trim('/')}{parameters}", cancelToken).ConfigureAwait(false);
-                if (result.IsSuccessStatusCode)
-                {
-                    var content = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
+                int processedRecords = 0;
+                int pageNumber = 1;
+                var items = new List<T>();
 
-                    var items = JsonSerializer.Deserialize<List<T>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                do
+                {
+                    await _AuthenticateAsync().ConfigureAwait(false);
+
+                    var parameters = $"?pageNumber={pageNumber}&pageSize={PULL_PAGE_SIZE}{timestampParameter}";
+                    
+                    var result = await _httpClient.GetAsync($"/{_nubeTableTypes[tableName].Trim('/')}{parameters}", cancelToken).ConfigureAwait(false);
+
+                    if (!result.IsSuccessStatusCode)
+                    {
+                        throw new PullOperationFailedException($"{result.StatusCode}");
+                    }
+
+                    var content = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    items = JsonSerializer.Deserialize<List<T>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
                     foreach (var item in items)
                     {
                         if (_IsItemDeleted(content, item.Id))
@@ -78,13 +94,25 @@ namespace NubeSync.Client
                         }
                     }
 
-                    await _SetLastSyncTimestampAsync(tableName).ConfigureAwait(false);
-                    return items.Count;
-                }
-                else
-                {
-                    throw new PullOperationFailedException($"{result.StatusCode}");
-                }
+                    processedRecords += items.Count;
+                    pageNumber++;
+                } while (items.Any() && items.Count <= PULL_PAGE_SIZE);
+
+                await _SetLastSyncTimestampAsync(tableName).ConfigureAwait(false);
+                return processedRecords;
+                
+                //var result = await _httpClient.GetAsync($"/{_nubeTableTypes[tableName].Trim('/')}{parameters}", cancelToken).ConfigureAwait(false);
+                
+                //if (result.IsSuccessStatusCode)
+                //{
+
+
+                //    return items.Count;
+                //}
+                //else
+                //{
+                //    throw new PullOperationFailedException($"{result.StatusCode}");
+                //}
             }
             finally
             {
