@@ -129,7 +129,7 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
 
             await NubeClient.PullTableAsync<TestItem>();
 
-            Assert.Equal("https://myserver/TestItem?laterThan=2000-12-31T23:00:00.000Z", HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
+            Assert.Equal("https://myserver/TestItem?pageNumber=1&pageSize=100&laterThan=2000-12-31T23:00:00.000Z", HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
         }
 
         [Fact]
@@ -212,7 +212,7 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
 
             await NubeClient.PullTableAsync<TestItem>();
 
-            Assert.Equal("https://myserver/TestItem", HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
+            Assert.StartsWith("https://myserver/TestItem", HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
         }
 
         [Fact]
@@ -222,7 +222,7 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
 
             await NubeClient.PullTableAsync<TestItem2>();
 
-            Assert.Equal("https://myserver/differentPath", HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
+            Assert.StartsWith("https://myserver/differentPath", HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
         }
     }
 
