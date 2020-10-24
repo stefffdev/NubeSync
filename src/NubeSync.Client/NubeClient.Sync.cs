@@ -89,22 +89,6 @@ namespace NubeSync.Client
             }
         }
 
-        private async Task _ProcessItem<T>(string content, T item) where T : NubeTable, new()
-        {
-            if (_IsItemDeleted(content, item.Id))
-            {
-                var deleteItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
-                if (deleteItem != null)
-                {
-                    await DeleteAsync(deleteItem, disableChangeTracker: true).ConfigureAwait(false);
-                }
-            }
-            else
-            {
-                await SaveAsync(item, disableChangeTracker: true).ConfigureAwait(false);
-            }
-        }
-
         /// <summary>
         /// Pushes the changes made in the local storage to the server.
         /// </summary>
@@ -202,6 +186,22 @@ namespace NubeSync.Client
             }
 
             return false;
+        }
+
+        private async Task _ProcessItem<T>(string content, T item) where T : NubeTable, new()
+        {
+            if (_IsItemDeleted(content, item.Id))
+            {
+                var deleteItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
+                if (deleteItem != null)
+                {
+                    await DeleteAsync(deleteItem, disableChangeTracker: true).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                await SaveAsync(item, disableChangeTracker: true).ConfigureAwait(false);
+            }
         }
 
         private async Task _SetInstallationId()
