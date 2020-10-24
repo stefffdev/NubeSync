@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>stefffdev</Authors>
     <Description>NubeSync Client Framework</Description>
     <PackageTags>mobile;data;sync;azure mobile app;</PackageTags>

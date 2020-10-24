@@ -36,7 +36,10 @@ namespace NubeSync.Service.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TodoItem>>> GetItems(DateTimeOffset? laterThan)
+        public async Task<ActionResult<IEnumerable<TodoItem>>> GetItems(
+            DateTimeOffset? laterThan, 
+            int? pageNumber,
+            int? pageSize)        
         {
             // UNCOMMENT THIS IF YOU WANT TO ACTIVATE AUTHENTICATION
             //HttpContext.VerifyUserHasAnyAcceptedScope(_authentication.ScopeRequiredByApi);
@@ -49,9 +52,11 @@ namespace NubeSync.Service.Controllers
             // UNCOMMENT THIS IF YOU WANT TO ACTIVATE AUTHENTICATION
             //if (laterThan.HasValue)
             //{
-            //    var allItems = await _context.TodoItems.Where(
-            //        i => i.UserId == userId &&
-            //        i.ServerUpdatedAt >= laterThan).ToListAsync();
+            //    var allItems = await _context.TodoItems
+            //        .Where(i => i.UserId == userId && i.ServerUpdatedAt >= laterThan)
+            //        .Skip((pageNumber.Value - 1) * pageSize.Value)
+            //        .Take(pageSize.Value)
+            //        .ToListAsync();
             //    return allItems.Where(
             //        i => _operationService.LastChangedByOthers(_context, tableName, i.Id, installationId, laterThan.Value)).ToList();
             //}
@@ -62,11 +67,19 @@ namespace NubeSync.Service.Controllers
 
             if (laterThan.HasValue)
             {
-                return await _context.TodoItems.Where(i => i.ServerUpdatedAt >= laterThan).ToListAsync();
+                return await _context.TodoItems
+                    .Where(i => i.ServerUpdatedAt >= laterThan)
+                    .Skip((pageNumber.Value - 1) * pageSize.Value)
+                    .Take(pageSize.Value)
+                    .ToListAsync();
             }
             else
             {
-                return await _context.TodoItems.Where(i => !i.DeletedAt.HasValue).ToListAsync();
+                return await _context.TodoItems
+                    .Where(i => !i.DeletedAt.HasValue)
+                    .Skip((pageNumber.Value - 1) * pageSize.Value)
+                    .Take(pageSize.Value)
+                    .ToListAsync();
             }
         }
 

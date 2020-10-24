@@ -32,7 +32,7 @@ namespace NubeSync.Service
         public void ConfigureServices(IServiceCollection services)
         {
             // UNCOMMENT THIS IF YOU WANT TO ACTIVATE AUTHENTICATION
-            //services.AddProtectedWebApi(Configuration);
+            //services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
             services.AddDbContext<DataContext>(opt => opt.UseSqlServer("Server=(localdb)\\v11.0;Database=nube-sample;Trusted_Connection=True;MultipleActiveResultSets=true"));
             services.AddControllers();
@@ -46,8 +46,8 @@ namespace NubeSync.Service
             }));
 
             services.AddTransient<IAuthentication, Authentication>();
-            services.AddTransient<IOperationService>(s => new OperationService(typeof(TodoItem)));
             services.AddTransient<IChangeTracker, ChangeTracker>();
+            services.AddTransient<IOperationService>(s => new OperationService(typeof(TodoItem)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

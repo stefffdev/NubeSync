@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NubeSync.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -7,13 +8,13 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using NubeSync.Core;
 
 namespace NubeSync.Client
 {
     public partial class NubeClient
     {
         private const int OPERATIONS_PAGE_SIZE = 100;
+        private const int PULL_PAGE_SIZE = 100;
         private bool _isSyncing;
 
         /// <summary>
@@ -45,50 +46,62 @@ namespace NubeSync.Client
                 _IsValidTable<T>();
 
                 var tableName = typeof(T).Name;
-                var parameters = string.Empty;
+                var timestampParameter = await _GetTimestampParameter(tableName).ConfigureAwait(false);
 
-                var lastSync = await _GetLastSyncTimestampAsync(tableName).ConfigureAwait(false);
-                if (lastSync.HasValue)
-                {
-                    parameters = $"?laterThan={lastSync.Value.ToUniversalTime():yyyy-MM-ddTHH:mm:ss.fffZ}";
-                }
-
-                await _AuthenticateAsync().ConfigureAwait(false);
                 await _SetInstallationId();
 
-                var result = await _httpClient.GetAsync($"/{_nubeTableTypes[tableName].Trim('/')}{parameters}", cancelToken).ConfigureAwait(false);
-                if (result.IsSuccessStatusCode)
-                {
-                    var content = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var processedRecords = 0;
+                var pageNumber = 1;
+                var items = new List<T>();
 
-                    var items = JsonSerializer.Deserialize<List<T>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    foreach (var item in items)
+                do
+                {
+                    await _AuthenticateAsync().ConfigureAwait(false);
+
+                    var parameters = $"?pageNumber={pageNumber}&pageSize={PULL_PAGE_SIZE}{timestampParameter}";
+
+                    var result = await _httpClient.GetAsync($"/{_nubeTableTypes[tableName].Trim('/')}{parameters}", cancelToken).ConfigureAwait(false);
+
+                    if (!result.IsSuccessStatusCode)
                     {
-                        if (_IsItemDeleted(content, item.Id))
-                        {
-                            var deleteItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
-                            if (deleteItem != null)
-                            {
-                                await DeleteAsync(deleteItem, disableChangeTracker: true).ConfigureAwait(false);
-                            }
-                        }
-                        else
-                        {
-                            await SaveAsync(item, disableChangeTracker: true).ConfigureAwait(false);
-                        }
+                        throw new PullOperationFailedException($"{result.StatusCode}");
                     }
 
-                    await _SetLastSyncTimestampAsync(tableName).ConfigureAwait(false);
-                    return items.Count;
-                }
-                else
-                {
-                    throw new PullOperationFailedException($"{result.StatusCode}");
-                }
+                    var content = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    items = JsonSerializer.Deserialize<List<T>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    foreach (var item in items)
+                    {
+                        await _ProcessItem(content, item).ConfigureAwait(false);
+                    }
+
+                    processedRecords += items.Count;
+                    pageNumber++;
+                } while (items.Any() && items.Count == PULL_PAGE_SIZE);
+                // cancelling with different page size for the case when the server does not implement paging
+
+                await _SetLastSyncTimestampAsync(tableName).ConfigureAwait(false);
+                return processedRecords;
             }
             finally
             {
                 _isSyncing = false;
+            }
+        }
+
+        private async Task _ProcessItem<T>(string content, T item) where T : NubeTable, new()
+        {
+            if (_IsItemDeleted(content, item.Id))
+            {
+                var deleteItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
+                if (deleteItem != null)
+                {
+                    await DeleteAsync(deleteItem, disableChangeTracker: true).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                await SaveAsync(item, disableChangeTracker: true).ConfigureAwait(false);
             }
         }
 
@@ -167,6 +180,17 @@ namespace NubeSync.Client
             }
 
             return result;
+        }
+
+        private async Task<string> _GetTimestampParameter(string tableName)
+        {
+            var lastSync = await _GetLastSyncTimestampAsync(tableName).ConfigureAwait(false);
+            if (lastSync.HasValue)
+            {
+                return $"&laterThan={lastSync.Value.ToUniversalTime():yyyy-MM-ddTHH:mm:ss.fffZ}";
+            }
+
+            return string.Empty;
         }
 
         private bool _IsItemDeleted(string content, string itemId)

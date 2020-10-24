@@ -45,6 +45,16 @@ namespace Tests.NubeSync.Client
             return _DefaultResult();
         }
 
+        public void UserLargeResultSet(int size = 150)
+        {
+            Results = new List<TestItem>();
+
+            for (int i=1; i<=size; i++)
+            {
+                Results.Add(new TestItem { Id = "i", Name = $"Name{i}" });
+            }
+        }
+
         private Task<HttpResponseMessage> _DefaultResult()
         {
             return Task.FromResult(new HttpResponseMessage()
