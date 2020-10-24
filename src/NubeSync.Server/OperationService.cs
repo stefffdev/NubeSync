@@ -211,7 +211,15 @@ namespace NubeSync.Server
                                 throw new InvalidOperationException($"Unable to convert value of operation {operation.Id}");
                             }
 
-                            prop.SetValue(item, converter.ConvertFromInvariantString(operation.Value));
+                            try
+                            {
+                                prop.SetValue(item, converter.ConvertFromInvariantString(operation.Value));
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new InvalidOperationException($"Unable to convert value of operation {operation.Id}: {ex.Message}");
+                            }
+
                             localItem.ServerUpdatedAt = DateTimeOffset.Now;
                         }
                     }

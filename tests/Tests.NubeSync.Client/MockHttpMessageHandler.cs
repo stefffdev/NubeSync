@@ -42,12 +42,6 @@ namespace Tests.NubeSync.Client
                 return _FailingResult();
             }
 
-            //var queryDictionary = HttpUtility.ParseQueryString(request.RequestUri.Query);
-            //if (request.RequestUri.AbsolutePath == "/Account/CheckCustomerGuid")
-            //{
-            //  //  return CheckCustomerGuid(request);
-            //}
-
             return _DefaultResult();
         }
 
