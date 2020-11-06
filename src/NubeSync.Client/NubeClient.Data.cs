@@ -141,8 +141,11 @@ namespace NubeSync.Client
 
         private async Task _RemoveObsoleteOperationsAfterDeleteAsync<T>(T item) where T : NubeTable, new()
         {
-            var obsoleteOperations = (await _dataStore.GetOperationsAsync().ConfigureAwait(false))
-                .Where(o => o.ItemId == item.Id && o.Type != OperationType.Deleted).ToList();
+            var obsoleteOperations = (await _dataStore.GetOperationsAsync().ConfigureAwait(false)).Where(o => 
+                o.ItemId == item.Id &&
+                o.TableName == item.GetType().Name &&
+                o.Type != OperationType.Deleted)
+                .ToList();
             if (!await _dataStore.DeleteOperationsAsync(obsoleteOperations.ToArray()).ConfigureAwait(false))
             {
                 throw new StoreOperationFailedException($"Could not delete obsolete operations for deleted item {item.Id}");
@@ -154,8 +157,13 @@ namespace NubeSync.Client
             var obsoleteOperations = new List<NubeOperation>();
             foreach (var operation in operations)
             {
-                obsoleteOperations.AddRange((await _dataStore.GetOperationsAsync().ConfigureAwait(false))
-                    .Where(o => o.ItemId == operation.ItemId && o.Property == operation.Property && o.Type == OperationType.Modified));
+                var obsolete = (await _dataStore.GetOperationsAsync().ConfigureAwait(false)).Where(o => 
+                    o.Id != operation.Id &&
+                    o.ItemId == operation.ItemId && 
+                    o.TableName == operation.TableName && 
+                    o.Property == operation.Property && 
+                    o.Type == OperationType.Modified);
+                obsoleteOperations.AddRange(obsolete);
             }
 
             if (!await _dataStore.DeleteOperationsAsync(obsoleteOperations.ToArray()).ConfigureAwait(false))
