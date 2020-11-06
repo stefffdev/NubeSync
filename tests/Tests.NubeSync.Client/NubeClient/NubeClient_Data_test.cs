@@ -1,11 +1,11 @@
-﻿using System;
+﻿using NSubstitute;
+using NubeSync.Client;
+using NubeSync.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using NSubstitute;
-using NubeSync.Client;
-using NubeSync.Core;
 using Tests.NubeSync.Client.NubeClient_test;
 using Xunit;
 
@@ -27,11 +27,11 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
             await AddTablesAsync();
             var existingOperations = new List<NubeOperation>()
             {
-                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
-                new NubeOperation() { ItemId = Item.Id, Type = OperationType.Deleted },
-                new NubeOperation() { ItemId = Item.Id, Type = OperationType.Modified },
-                new NubeOperation() { ItemId = Item.Id, Type = OperationType.Modified },
-                new NubeOperation() { ItemId = Item.Id, Type = OperationType.Added },
+                new NubeOperation() { ItemId = "otherId", TableName = "TestItem", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, TableName = "TestItem", Type = OperationType.Deleted },
+                new NubeOperation() { ItemId = Item.Id, TableName = "TestItem", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, TableName = "TestItem", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, TableName = "TestItem", Type = OperationType.Added },
             };
             var expectedOperations = existingOperations.Skip(2).ToList();
             DataStore.GetOperationsAsync().Returns(existingOperations.AsQueryable());
@@ -50,6 +50,25 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
             await NubeClient.DeleteAsync(Item);
 
             await DataStore.Received().DeleteAsync(Item);
+        }
+
+        [Fact]
+        public async Task Does_not_clean_up_delete_operations_from_different_tables()
+        {
+            await AddTablesAsync();
+            var existingOperations = new List<NubeOperation>()
+            {
+                new NubeOperation() { ItemId = "otherId", TableName = "OtherTable", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, TableName = "OtherTable", Type = OperationType.Deleted },
+                new NubeOperation() { ItemId = Item.Id, TableName = "OtherTable", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, TableName = "OtherTable", Type = OperationType.Added },
+            };
+            var expectedOperations = existingOperations.Skip(2).ToList();
+            DataStore.GetOperationsAsync().Returns(existingOperations.AsQueryable());
+
+            await NubeClient.DeleteAsync(Item);
+
+            Assert.Empty(RemovedOperations);
         }
 
         [Fact]
@@ -213,16 +232,17 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
             _newItem.CreatedAt = Item.CreatedAt;
             var existingOperations = new List<NubeOperation>()
             {
-                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
-                new NubeOperation() { ItemId = Item.Id, Property = "CreatedAt", Type = OperationType.Modified },
-                new NubeOperation() { ItemId = Item.Id, Property = "Name", Type = OperationType.Modified },
-                new NubeOperation() { ItemId = Item.Id, Property = "UpdatedAt", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "otherId", TableName = "TestItem", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, TableName = "TestItem", Property = "CreatedAt", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, TableName = "TestItem", Property = "Name", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, TableName = "TestItem", Property = "UpdatedAt", Type = OperationType.Modified },
             };
             var expectedOperations = existingOperations.Skip(2).ToList();
             DataStore.GetOperationsAsync().Returns(existingOperations.AsQueryable());
             var changeTracker = new ChangeTracker();
             var addOperations = await changeTracker.TrackModifyAsync(Item, _newItem);
             ChangeTracker.TrackModifyAsync(Arg.Any<TestItem>(), Arg.Any<TestItem>()).Returns(addOperations);
+            existingOperations.AddRange(addOperations);
 
             await NubeClient.SaveAsync(_newItem);
 
@@ -241,6 +261,30 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
 
             Assert.NotNull(Item.Id);
             Assert.NotEqual(oldItemId, Item.Id);
+        }
+
+        [Fact]
+        public async Task Does_not_clean_up_operations_from_different_tables_or_currently_added_operations()
+        {
+            await AddTablesAsync();
+            _AddItemToStore();
+            DataStore.UpdateAsync(Arg.Any<TestItem>()).Returns(true);
+
+            _newItem.CreatedAt = Item.CreatedAt;
+            var existingOperations = new List<NubeOperation>()
+            {
+                new NubeOperation() { ItemId = Item.Id, TableName = "DifferentTable", Property = "CreatedAt", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = Item.Id, TableName = "DifferentTable", Property = "Name", Type = OperationType.Modified },
+            };
+            DataStore.GetOperationsAsync().Returns(existingOperations.AsQueryable());
+            var changeTracker = new ChangeTracker();
+            var addOperations = await changeTracker.TrackModifyAsync(Item, _newItem);
+            ChangeTracker.TrackModifyAsync(Arg.Any<TestItem>(), Arg.Any<TestItem>()).Returns(addOperations);
+            existingOperations.AddRange(addOperations);
+
+            await NubeClient.SaveAsync(_newItem);
+
+            Assert.Empty(RemovedOperations);
         }
 
         [Fact]
