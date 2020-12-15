@@ -102,11 +102,16 @@ namespace NubeSync.Server
         private async Task<DateTimeOffset> _GetLastChangeForPropertyAsync(
             DbContext context,
             string itemId,
+            string tableName,
             string propertyName)
         {
-            return await context.Set<NubeServerOperation>().AsNoTracking()
-                .Where(o => o.ItemId == itemId && o.Property == propertyName)
-                .MaxAsync(o => (DateTimeOffset?) o.CreatedAt).ConfigureAwait(false) ?? DateTimeOffset.MinValue;
+            return await context.Set<NubeServerOperation>()
+                .AsNoTracking().Where(o => 
+                    o.ItemId == itemId && 
+                    o.TableName == tableName &&
+                    o.Property == propertyName)
+                .MaxAsync(o => (DateTimeOffset?) o.CreatedAt)
+                .ConfigureAwait(false) ?? DateTimeOffset.MinValue;
         }
 
         private Type? _GetTableType(string tableName)
@@ -192,7 +197,7 @@ namespace NubeSync.Server
                             throw new InvalidOperationException($"Property of operation {operation.Id} cannot be empty");
                         }
 
-                        if (await _GetLastChangeForPropertyAsync(context, operation.ItemId, operation.Property).ConfigureAwait(false) > operation.CreatedAt)
+                        if (await _GetLastChangeForPropertyAsync(context, operation.ItemId, operation.TableName, operation.Property).ConfigureAwait(false) > operation.CreatedAt)
                         {
                             operation.ProcessingType = ProcessingType.DiscaredOutdated;
                         }

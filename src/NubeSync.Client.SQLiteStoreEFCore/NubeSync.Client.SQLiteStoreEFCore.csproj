@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.2.2</Version>
+    <Version>1.2.3</Version>
     <Authors>stefffdev</Authors>
     <Description>NubeSync Client Framework with SQLite Storage using Entity Framework Core</Description>
     <PackageTags>mobile;data;sync;azure mobile app;</PackageTags>
