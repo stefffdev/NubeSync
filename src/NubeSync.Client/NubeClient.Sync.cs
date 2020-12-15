@@ -222,7 +222,7 @@ namespace NubeSync.Client
 
         private async Task _SetLastSyncTimestampAsync(string tableName)
         {
-            await _dataStore.SetSettingAsync($"lastSync-{tableName}", DateTimeOffset.Now.ToString()).ConfigureAwait(false);
+            await _dataStore.SetSettingAsync($"lastSync-{tableName}", DateTimeOffset.Now.ToString("o")).ConfigureAwait(false);
         }
     }
 }
