@@ -52,13 +52,11 @@ namespace NubeSync.Service.Controllers
             // UNCOMMENT THIS IF YOU WANT TO ACTIVATE AUTHENTICATION
             //if (laterThan.HasValue)
             //{
-            //    var allItems = await _context.TodoItems
+            //    return await _context.TodoItems
             //        .Where(i => i.UserId == userId && i.ServerUpdatedAt >= laterThan)
             //        .Skip((pageNumber.Value - 1) * pageSize.Value)
             //        .Take(pageSize.Value)
             //        .ToListAsync();
-            //    return allItems.Where(
-            //        i => _operationService.LastChangedByOthers(_context, tableName, i.Id, installationId, laterThan.Value)).ToList();
             //}
             //else
             //{
