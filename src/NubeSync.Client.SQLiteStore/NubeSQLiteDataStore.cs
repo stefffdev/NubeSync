@@ -13,7 +13,7 @@ namespace NubeSync.Client.SQLiteStore
             Database = new SQLiteAsyncConnection(databasePath);
         }
 
-        public async Task AddTableAsync<T>() where T : NubeTable
+        public async Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable
         {
             await Database.CreateTableAsync(typeof(T), CreateFlags.ImplicitPK).ConfigureAwait(false);
         }

@@ -6,7 +6,7 @@ using NubeSync.Core;
 
 namespace NubeSync.Client
 {
-    public partial class NubeClient
+    public partial class NubeClient : INubeClient
     {
         private const string INSTALLATION_ID_HEADER = "NUBE-INSTALLATION-ID";
         private readonly INubeAuthentication? _authentication;
@@ -39,11 +39,6 @@ namespace NubeSync.Client
             _httpClient.BaseAddress = new Uri(url);
         }
 
-        /// <summary>
-        /// Registers a table to be handled by the NubeSync client. All tables that should be synced have to be registered this way.
-        /// </summary>
-        /// <typeparam name="T">The type of the table to be synced.</typeparam>
-        /// <param name="tableUrl">Optional: The url to the table controller on the server, if left empty the name of the type will be used.</param>
         public async Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable
         {
             await _dataStore.AddTableAsync<T>().ConfigureAwait(false);

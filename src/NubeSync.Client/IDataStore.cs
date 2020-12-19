@@ -20,7 +20,7 @@ namespace NubeSync.Client
         /// All tables that should be handled must be registered this way.
         /// </summary>
         /// <typeparam name="T">The type of the table to be registered.</typeparam>
-        Task AddTableAsync<T>() where T : NubeTable;
+        Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable;
 
         /// <summary>
         /// Returns all records in the table of type T.
