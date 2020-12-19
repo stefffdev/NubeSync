@@ -79,8 +79,9 @@ namespace NubeSync.Client
         /// Saves a record to the local storage. Adds it if it does not exist or updates it, if a record with the given id already exists. Also adds all sync operations for the changes made.
         /// </summary>
         /// <param name="item">The item to be saved.</param>
+        /// <param name="existingItem">The item before any changes were made to is, say the version of the element that is currently stored in the database.</param>
         /// <param name="disableChangeTracker">Optional: If true generating the sync operations is omitted.</param>
-        public async Task SaveAsync<T>(T item, bool disableChangeTracker = false) where T : NubeTable
+        public async Task SaveAsync<T>(T item, T? existingItem = null, bool disableChangeTracker = false) where T : NubeTable
         {
             _IsValidTable<T>();
 
@@ -90,7 +91,11 @@ namespace NubeSync.Client
                 item.UpdatedAt = now;
             }
 
-            var existingItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
+            if (existingItem == null)
+            {
+                existingItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
+            }
+
             if (existingItem == null)
             {
                 if (string.IsNullOrEmpty(item.Id))

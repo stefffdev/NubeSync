@@ -294,7 +294,7 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
             var createdAt = Item.CreatedAt;
             DataStore.InsertAsync(Arg.Any<TestItem>()).Returns(true);
 
-            await NubeClient.SaveAsync(Item, true);
+            await NubeClient.SaveAsync(Item, disableChangeTracker: true);
 
             Assert.Equal(createdAt, Item.CreatedAt);
         }
@@ -306,7 +306,7 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
             var updatedAt = Item.UpdatedAt;
             DataStore.InsertAsync(Arg.Any<TestItem>()).Returns(true);
 
-            await NubeClient.SaveAsync(Item, true);
+            await NubeClient.SaveAsync(Item, disableChangeTracker: true);
 
             Assert.Equal(updatedAt, Item.UpdatedAt);
         }
@@ -317,7 +317,7 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
             await AddTablesAsync();
             DataStore.InsertAsync(Arg.Any<TestItem>()).Returns(true);
 
-            await NubeClient.SaveAsync(Item, true);
+            await NubeClient.SaveAsync(Item, disableChangeTracker: true);
 
             await ChangeTracker.DidNotReceive().TrackDeleteAsync(Arg.Any<TestItem>());
         }
@@ -329,9 +329,21 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
             _AddItemToStore();
             DataStore.UpdateAsync(Arg.Any<TestItem>()).Returns(true);
 
-            await NubeClient.SaveAsync(Item, true);
+            await NubeClient.SaveAsync(Item, disableChangeTracker: true);
 
             await ChangeTracker.DidNotReceive().TrackModifyAsync(Arg.Any<TestItem>(), Arg.Any<TestItem>());
+        }
+
+        [Fact]
+        public async Task Does_not_try_to_load_the_existing_item_from_the_database_when_it_is_not_null()
+        {
+            await AddTablesAsync();
+            _AddItemToStore();
+            DataStore.UpdateAsync(Arg.Any<TestItem>()).Returns(true);
+
+            await NubeClient.SaveAsync(Item, existingItem: Item);
+
+            await DataStore.DidNotReceive().FindByIdAsync<TestItem>(Item.Id);
         }
 
         [Fact]
@@ -343,6 +355,18 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
             await NubeClient.SaveAsync(Item);
 
             await DataStore.Received().InsertAsync(Item);
+        }
+
+        [Fact]
+        public async Task Tries_to_load_the_existing_item_from_the_database_when_it_is_null()
+        {
+            await AddTablesAsync();
+            _AddItemToStore();
+            DataStore.UpdateAsync(Arg.Any<TestItem>()).Returns(true);
+
+            await NubeClient.SaveAsync(Item);
+
+            await DataStore.Received().FindByIdAsync<TestItem>(Item.Id);
         }
 
         [Fact]
