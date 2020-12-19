@@ -33,7 +33,7 @@ namespace NubeSync.Client
         /// <param name="cancelToken">Optional: A token for canceling the operation.</param>
         /// <returns>The number of records that were changed or added in this table since the last sync.</returns>
         /// <exception cref="PullOperationFailedException">Thrown when the table cannot be pulled from the server.</exception>
-        public async Task<int> PullTableAsync<T>(CancellationToken cancelToken = default) where T : NubeTable, new()
+        public async Task<int> PullTableAsync<T>(CancellationToken cancelToken = default) where T : NubeTable
         {
             if (_isSyncing || cancelToken.IsCancellationRequested)
             {
@@ -188,7 +188,7 @@ namespace NubeSync.Client
             return false;
         }
 
-        private async Task _ProcessItem<T>(string content, T item) where T : NubeTable, new()
+        private async Task _ProcessItem<T>(string content, T item) where T : NubeTable
         {
             if (_IsItemDeleted(content, item.Id))
             {

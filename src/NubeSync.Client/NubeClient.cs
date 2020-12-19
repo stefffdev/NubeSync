@@ -44,7 +44,7 @@ namespace NubeSync.Client
         /// </summary>
         /// <typeparam name="T">The type of the table to be synced.</typeparam>
         /// <param name="tableUrl">Optional: The url to the table controller on the server, if left empty the name of the type will be used.</param>
-        public async Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable, new()
+        public async Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable
         {
             await _dataStore.AddTableAsync<T>().ConfigureAwait(false);
 
