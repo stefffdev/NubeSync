@@ -8,10 +8,19 @@ namespace NubeSync.Core
 {
     public abstract class NubeTable
     {
+        /// <summary>
+        /// The timestamp when the record was saved for the first time.
+        /// </summary>
         public DateTimeOffset CreatedAt { get; set; }
 
+        /// <summary>
+        /// The id of the record.
+        /// </summary>
         public string Id { get; set; } = null!;
 
+        /// <summary>
+        /// The timestamp when the record was saved the last time.
+        /// </summary>
         public DateTimeOffset UpdatedAt { get; set; }
 
         /// <summary>
