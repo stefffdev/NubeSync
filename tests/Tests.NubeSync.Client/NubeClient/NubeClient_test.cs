@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
+using NubeSync.Client;
 using Xunit;
 
 namespace Tests.NubeSync.Client.NubeClient_test
@@ -49,9 +50,28 @@ namespace Tests.NubeSync.Client.NubeClient_test
         }
 
         [Fact]
-        public void Sets_the_server_base_address()
+        public void Does_not_set_the_server_base_address_when_it_is_null()
+        {
+            var baseAddress = "https://something_else/";
+            HttpClient.BaseAddress = new Uri(baseAddress);
+
+            NubeClient = new NubeClient(DataStore, null, Authentication, HttpClient, ChangeTracker);
+
+            Assert.Equal(baseAddress, HttpClient.BaseAddress.AbsoluteUri);
+        }
+
+        [Fact]
+        public void Sets_the_server_base_address_when_it_is_not_null()
         {
             Assert.Equal(ServerUrl.ToLower(), HttpClient.BaseAddress.ToString());
+        }
+
+        [Fact]
+        public void Throws_when_url_and_http_client_are_empty()
+        {
+            var ex = Assert.Throws<Exception>(() => new NubeClient(DataStore, null, Authentication, null, ChangeTracker));
+
+            Assert.Equal("Either the server url or a HttpClient instance has to be provided.", ex.Message);
         }
     }
 }

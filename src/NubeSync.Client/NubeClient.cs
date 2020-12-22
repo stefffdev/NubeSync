@@ -14,6 +14,7 @@ namespace NubeSync.Client
         private readonly IDataStore _dataStore;
         private readonly HttpClient _httpClient;
         private readonly Dictionary<string, string> _nubeTableTypes;
+        private readonly string _operationsUrl;
 
         /// <summary>
         /// Creates a instance of the NubeSync client
@@ -25,23 +26,34 @@ namespace NubeSync.Client
         /// <param name="changeTracker">Optional: the change tracker generating the operations.</param>
         public NubeClient(
             IDataStore dataStore,
-            string url,
+            string? url = null,
             INubeAuthentication? authentication = null,
             HttpClient? httpClient = null,
-            IChangeTracker? changeTracker = null)
+            IChangeTracker? changeTracker = null,
+            string? operationsUrl = null)
         {
+            if (string.IsNullOrEmpty(url) && httpClient == null)
+            {
+                throw new Exception("Either the server url or a HttpClient instance has to be provided.");
+            }
+
             _dataStore = dataStore;
             _authentication = authentication;
             _httpClient = httpClient ?? new HttpClient();
             _changeTracker = changeTracker ?? new ChangeTracker();
+            _operationsUrl = operationsUrl ?? "/operations";
 
             _nubeTableTypes = new Dictionary<string, string>();
-            _httpClient.BaseAddress = new Uri(url);
+
+            if (!string.IsNullOrEmpty(url))
+            {
+                _httpClient.BaseAddress = new Uri(url);
+            }
         }
 
         public async Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable
         {
-            await _dataStore.AddTableAsync<T>().ConfigureAwait(false);
+            await _dataStore.AddTableAsync<T>(tableUrl).ConfigureAwait(false);
 
             if (!await _dataStore.TableExistsAsync<T>().ConfigureAwait(false))
             {

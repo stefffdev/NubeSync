@@ -55,6 +55,16 @@ namespace Tests.NubeSync.Client.SQLiteStore.NubeSQLiteDataStore_Repository_test
         }
 
         [Fact]
+        public async Task Find_by_id_does_not_find_null_id()
+        {
+            await _AddItemsAsync();
+
+            var item = await DataStore.FindByIdAsync<TestItem>(null);
+
+            Assert.Null(item);
+        }
+
+        [Fact]
         public async Task Find_by_id_returns_the_right_item()
         {
             await _AddItemsAsync();

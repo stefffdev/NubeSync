@@ -325,6 +325,29 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
         }
 
         [Fact]
+        public async Task Posts_the_operations_to_the_given_operations_url()
+        {
+            var operationsUrl = "/different";
+            NubeClient = new NubeClient(DataStore, ServerUrl, Authentication, HttpClient, ChangeTracker, operationsUrl);
+
+            var existingOperations = new List<NubeOperation>()
+            {
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+            };
+            DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
+            DataStore.When(x => x.DeleteOperationsAsync(Arg.Any<NubeOperation[]>())).Do(
+                x =>
+                {
+                    existingOperations = new List<NubeOperation>();
+                    DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
+                });
+
+            await NubeClient.PushChangesAsync();
+
+            Assert.Equal("https://myserver/different", HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
+        }
+
+        [Fact]
         public async Task Queries_the_operations_until_there_are_no_more()
         {
             var i = 0;

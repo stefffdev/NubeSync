@@ -98,7 +98,7 @@ namespace NubeSync.Client
                     var options = new JsonSerializerOptions { IgnoreNullValues = true };
                     var content = new StringContent(JsonSerializer.Serialize(operations, options),
                         Encoding.UTF8, "application/json");
-                    var result = await _httpClient.PostAsync("/operations", content, cancelToken).ConfigureAwait(false);
+                    var result = await _httpClient.PostAsync(_operationsUrl, content, cancelToken).ConfigureAwait(false);
 
                     if (result.IsSuccessStatusCode)
                     {

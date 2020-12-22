@@ -63,7 +63,7 @@ namespace NubeSync.Client.SQLiteStore
 
         private async Task<TableMapping> _GetMappingAsync<T>()
         {
-            return await Database.GetMappingAsync(typeof(T)).ConfigureAwait(false);
+            return await Database.GetMappingAsync(typeof(T), CreateFlags.ImplicitPK).ConfigureAwait(false);
         }
     }
 }
