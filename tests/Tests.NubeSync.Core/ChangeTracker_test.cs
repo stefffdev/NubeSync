@@ -69,6 +69,16 @@ namespace Tests.NubeSync.Core.ChangeTracker_test
         }
 
         [Fact]
+        public async Task Sets_item_updated_at_as_operation_created_at()
+        {
+            var operations = await _changeTracker.TrackAddAsync(Item);
+
+            Assert.Equal(operations[1].CreatedAt, Item.UpdatedAt);
+            Assert.Equal(operations[2].CreatedAt, Item.UpdatedAt);
+            Assert.Equal(operations[3].CreatedAt, Item.UpdatedAt);
+        }
+
+        [Fact]
         public async Task Throws_when_item_id_is_empty()
         {
             Item.Id = string.Empty;
@@ -97,6 +107,14 @@ namespace Tests.NubeSync.Core.ChangeTracker_test
             Assert.Equal("TestItem", operation.TableName);
             Assert.Equal(Item.Id, operation.ItemId);
             Assert.Equal(OperationType.Deleted, operation.Type);
+        }
+
+        [Fact]
+        public async Task Sets_item_updated_at_as_operation_created_at()
+        {
+            var operation = (await _changeTracker.TrackDeleteAsync(Item)).First();
+
+            Assert.Equal(operation.CreatedAt, Item.UpdatedAt);
         }
 
         [Fact]
@@ -153,6 +171,16 @@ namespace Tests.NubeSync.Core.ChangeTracker_test
             var operations = await _changeTracker.TrackModifyAsync(Item, Item);
 
             Assert.Empty(operations);
+        }
+
+        [Fact]
+        public async Task Sets_item_updated_at_as_operation_created_at()
+        {
+            var operations = await _changeTracker.TrackModifyAsync(Item, _newItem);
+
+            Assert.Equal(operations[0].CreatedAt, _newItem.UpdatedAt);
+            Assert.Equal(operations[1].CreatedAt, _newItem.UpdatedAt);
+            Assert.Equal(operations[2].CreatedAt, _newItem.UpdatedAt);
         }
 
         [Fact]

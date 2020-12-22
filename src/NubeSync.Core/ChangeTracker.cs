@@ -20,7 +20,9 @@ namespace NubeSync.Core
                 {
                     TableName = tableName,
                     ItemId = item.Id,
-                    Type = OperationType.Added
+                    Type = OperationType.Added,
+                    // to make sure the add operation is processed before the modify operations
+                    CreatedAt = item.UpdatedAt.AddMilliseconds(-1), 
                 }
             };
 
@@ -34,7 +36,8 @@ namespace NubeSync.Core
                         ItemId = item.Id,
                         Type = OperationType.Modified,
                         Property = property.Key,
-                        Value = property.Value
+                        Value = property.Value,
+                        CreatedAt = item.UpdatedAt,
                     });
                 }
             }
@@ -54,7 +57,8 @@ namespace NubeSync.Core
             {
                 TableName = item.GetType().Name,
                 ItemId = item.Id,
-                Type = OperationType.Deleted
+                Type = OperationType.Deleted,
+                CreatedAt = item.UpdatedAt,
             };
             operations.Add(operation);
 
@@ -95,7 +99,8 @@ namespace NubeSync.Core
                         Type = OperationType.Modified,
                         Property = property.Key,
                         Value = property.Value,
-                        OldValue = oldPropertyValue
+                        OldValue = oldPropertyValue,
+                        CreatedAt = newItem.UpdatedAt,
                     });
                 }
             }

@@ -52,7 +52,7 @@ namespace NubeSync.Core
                 }
             }
 
-            string? _ConvertToString(object value)
+            static string? _ConvertToString(object value)
             {
                 if (value is DateTimeOffset dateTime)
                 {

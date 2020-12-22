@@ -7,7 +7,6 @@ namespace NubeSync.Core
         public NubeOperation()
         {
             Id = Guid.NewGuid().ToString();
-            CreatedAt = DateTimeOffset.Now;
         }
 
         public DateTimeOffset CreatedAt { get; set; }
