@@ -63,7 +63,7 @@ namespace NubeSync.Client
                 item.UpdatedAt = now;
             }
 
-            if (existingItem == null)
+            if (existingItem == null && !string.IsNullOrEmpty(item.Id))
             {
                 existingItem = await _dataStore.FindByIdAsync<T>(item.Id).ConfigureAwait(false);
             }

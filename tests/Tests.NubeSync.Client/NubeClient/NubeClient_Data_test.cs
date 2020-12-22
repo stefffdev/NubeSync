@@ -347,6 +347,20 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
         }
 
         [Fact]
+        public async Task Does_not_try_to_load_the_existing_item_from_the_database_when_the_id_is_null()
+        {
+            await AddTablesAsync();
+            _AddItemToStore();
+            DataStore.UpdateAsync(Arg.Any<TestItem>()).Returns(true);
+            DataStore.InsertAsync(Arg.Any<TestItem>()).Returns(true);
+            Item.Id = null;
+
+            await NubeClient.SaveAsync(Item);
+
+            await DataStore.DidNotReceive().FindByIdAsync<TestItem>(Arg.Any<string>());
+        }
+
+        [Fact]
         public async Task Inserts_the_item_in_the_store()
         {
             await AddTablesAsync();
