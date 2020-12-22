@@ -34,8 +34,8 @@ namespace Tests.NubeSync.Core.NubeTable_test
 
             Assert.Equal(3, result.Count);
             Assert.Equal(Item.Name, result["Name"]);
-            Assert.Equal(Convert.ToString(Item.CreatedAt, CultureInfo.InvariantCulture), result["CreatedAt"]);
-            Assert.Equal(Convert.ToString(Item.UpdatedAt, CultureInfo.InvariantCulture), result["UpdatedAt"]);
+            Assert.Equal(Item.CreatedAt.ToString("o", CultureInfo.InvariantCulture), result["CreatedAt"]);
+            Assert.Equal(Item.UpdatedAt.ToString("o", CultureInfo.InvariantCulture), result["UpdatedAt"]);
         }
 
         [Fact]

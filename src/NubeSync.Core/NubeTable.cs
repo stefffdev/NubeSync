@@ -42,7 +42,7 @@ namespace NubeSync.Core
             foreach (var prop in props)
             {
                 if (prop.GetValue(this, null) is object value &&
-                    Convert.ToString(value, CultureInfo.InvariantCulture) is string stringValue)
+                    _ConvertToString(value) is string stringValue)
                 {
                     result.Add(prop.Name, stringValue);
                 }
@@ -50,6 +50,16 @@ namespace NubeSync.Core
                 {
                     result.Add(prop.Name, null);
                 }
+            }
+
+            string? _ConvertToString(object value)
+            {
+                if (value is DateTimeOffset dateTime)
+                {
+                    return dateTime.ToString("o", CultureInfo.InvariantCulture);
+                }
+
+                return Convert.ToString(value, CultureInfo.InvariantCulture);
             }
 
             return result;

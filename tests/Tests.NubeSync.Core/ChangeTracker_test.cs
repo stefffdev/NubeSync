@@ -61,11 +61,11 @@ namespace Tests.NubeSync.Core.ChangeTracker_test
 
             var createdAtItem = modifyOperations.Where(o => o.Property == "CreatedAt").First();
             Assert.Null(createdAtItem.OldValue);
-            Assert.Equal(Convert.ToString(Item.CreatedAt, CultureInfo.InvariantCulture), createdAtItem.Value);
+            Assert.Equal(Item.CreatedAt.ToString("o", CultureInfo.InvariantCulture), createdAtItem.Value);
 
             var updatedAtItem = modifyOperations.Where(o => o.Property == "UpdatedAt").First();
             Assert.Null(updatedAtItem.OldValue);
-            Assert.Equal(Convert.ToString(Item.UpdatedAt, CultureInfo.InvariantCulture), updatedAtItem.Value);
+            Assert.Equal(Item.UpdatedAt.ToString("o", CultureInfo.InvariantCulture), updatedAtItem.Value);
         }
 
         [Fact]
@@ -140,11 +140,11 @@ namespace Tests.NubeSync.Core.ChangeTracker_test
             Assert.Equal(Item.Name, nameOperation.OldValue);
             Assert.Equal(_newItem.Name, nameOperation.Value);
             var updatedAtOperation = operations.Where(o => o.Property == "UpdatedAt").First();
-            Assert.Equal(Convert.ToString(Item.UpdatedAt, CultureInfo.InvariantCulture), updatedAtOperation.OldValue);
-            Assert.Equal(Convert.ToString(_newItem.UpdatedAt, CultureInfo.InvariantCulture), updatedAtOperation.Value);
+            Assert.Equal(Item.UpdatedAt.ToString("o", CultureInfo.InvariantCulture), updatedAtOperation.OldValue);
+            Assert.Equal(_newItem.UpdatedAt.ToString("o", CultureInfo.InvariantCulture), updatedAtOperation.Value);
             var createdAtOperation = operations.Where(o => o.Property == "CreatedAt").First();
-            Assert.Equal(Convert.ToString(Item.CreatedAt, CultureInfo.InvariantCulture), createdAtOperation.OldValue);
-            Assert.Equal(Convert.ToString(_newItem.CreatedAt, CultureInfo.InvariantCulture), createdAtOperation.Value);
+            Assert.Equal(Item.CreatedAt.ToString("o", CultureInfo.InvariantCulture), createdAtOperation.OldValue);
+            Assert.Equal(_newItem.CreatedAt.ToString("o", CultureInfo.InvariantCulture), createdAtOperation.Value);
         }
 
         [Fact]
