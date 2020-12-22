@@ -192,7 +192,7 @@ namespace NubeSync.Server
                     }
                     else
                     {
-                        if (string.IsNullOrEmpty(operation.Property))
+                        if (operation.Property == null)
                         {
                             throw new InvalidOperationException($"Property of operation {operation.Id} cannot be empty");
                         }

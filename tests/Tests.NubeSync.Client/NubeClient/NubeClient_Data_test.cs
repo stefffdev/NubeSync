@@ -63,7 +63,6 @@ namespace Tests.NubeSync.Client.NubeClient_Data_test
                 new NubeOperation() { ItemId = Item.Id, TableName = "OtherTable", Type = OperationType.Modified },
                 new NubeOperation() { ItemId = Item.Id, TableName = "OtherTable", Type = OperationType.Added },
             };
-            var expectedOperations = existingOperations.Skip(2).ToList();
             DataStore.GetOperationsAsync().Returns(existingOperations.AsQueryable());
 
             await NubeClient.DeleteAsync(Item);
