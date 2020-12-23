@@ -1,5 +1,3 @@
-<img align="left" width="110" height="110" src="https://github.com/stefffdev/NubeSync/blob/master/Icon.png" />
-
 # NubeSync
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/stefffdev/NubeSync/blob/master/LICENSE)
 ![GitHub last commit](https://img.shields.io/github/last-commit/stefffdev/NubeSync)
