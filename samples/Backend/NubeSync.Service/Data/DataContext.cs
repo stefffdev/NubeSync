@@ -28,7 +28,7 @@ namespace NubeSync.Service.Data
             modelBuilder.Entity<NubeServerOperation>().HasKey(e => e.Id).IsClustered(false);
             modelBuilder.Entity<NubeServerOperation>().HasIndex(e => e.ClusteredIndex).IsClustered();
             modelBuilder.Entity<NubeServerOperation>().Property(e => e.ClusteredIndex).ValueGeneratedOnAdd();
-            modelBuilder.Entity<NubeServerOperation>().HasIndex(e => new { e.ItemId, e.Property, e.CreatedAt });
+            modelBuilder.Entity<NubeServerOperation>().HasIndex(e => new { e.ItemId, e.TableName, e.Property, e.CreatedAt });
             modelBuilder.Entity<NubeServerOperation>().HasIndex(e => new { e.ItemId, e.TableName, e.ServerUpdatedAt, e.ProcessingType, e.InstallationId });
 
             modelBuilder.Entity<TodoItem>().HasKey(e => e.Id).IsClustered(false);

@@ -24,7 +24,7 @@ namespace NubeSync.Client.SQLiteStoreEFCore
 
         internal DbSet<NubeSetting> NubeSettings { get; set; } = null!;
 
-        public Task AddTableAsync<T>() where T : NubeTable, new()
+        public Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable
         {
             return Task.CompletedTask;
         }

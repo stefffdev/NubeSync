@@ -6,7 +6,7 @@ using NubeSync.Core;
 
 namespace NubeSync.Client
 {
-    public partial class NubeClient
+    public partial class NubeClient : INubeClient
     {
         private const string INSTALLATION_ID_HEADER = "NUBE-INSTALLATION-ID";
         private readonly INubeAuthentication? _authentication;
@@ -14,6 +14,7 @@ namespace NubeSync.Client
         private readonly IDataStore _dataStore;
         private readonly HttpClient _httpClient;
         private readonly Dictionary<string, string> _nubeTableTypes;
+        private readonly string _operationsUrl;
 
         /// <summary>
         /// Creates a instance of the NubeSync client
@@ -25,28 +26,34 @@ namespace NubeSync.Client
         /// <param name="changeTracker">Optional: the change tracker generating the operations.</param>
         public NubeClient(
             IDataStore dataStore,
-            string url,
+            string? url = null,
             INubeAuthentication? authentication = null,
             HttpClient? httpClient = null,
-            IChangeTracker? changeTracker = null)
+            IChangeTracker? changeTracker = null,
+            string? operationsUrl = null)
         {
+            if (string.IsNullOrEmpty(url) && httpClient == null)
+            {
+                throw new Exception("Either the server url or a HttpClient instance has to be provided.");
+            }
+
             _dataStore = dataStore;
             _authentication = authentication;
             _httpClient = httpClient ?? new HttpClient();
             _changeTracker = changeTracker ?? new ChangeTracker();
+            _operationsUrl = operationsUrl ?? "/operations";
 
             _nubeTableTypes = new Dictionary<string, string>();
-            _httpClient.BaseAddress = new Uri(url);
+
+            if (!string.IsNullOrEmpty(url))
+            {
+                _httpClient.BaseAddress = new Uri(url);
+            }
         }
 
-        /// <summary>
-        /// Registers a table to be handled by the NubeSync client. All tables that should be synced have to be registered this way.
-        /// </summary>
-        /// <typeparam name="T">The type of the table to be synced.</typeparam>
-        /// <param name="tableUrl">Optional: The url to the table controller on the server, if left empty the name of the type will be used.</param>
-        public async Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable, new()
+        public async Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable
         {
-            await _dataStore.AddTableAsync<T>().ConfigureAwait(false);
+            await _dataStore.AddTableAsync<T>(tableUrl).ConfigureAwait(false);
 
             if (!await _dataStore.TableExistsAsync<T>().ConfigureAwait(false))
             {

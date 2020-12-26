@@ -20,21 +20,21 @@ namespace NubeSync.Client
         /// All tables that should be handled must be registered this way.
         /// </summary>
         /// <typeparam name="T">The type of the table to be registered.</typeparam>
-        Task AddTableAsync<T>() where T : NubeTable, new();
+        Task AddTableAsync<T>(string? tableUrl = null) where T : NubeTable;
 
         /// <summary>
         /// Returns all records in the table of type T.
         /// </summary>
         /// <typeparam name="T">The type of the table.</typeparam>
         /// <returns>All records in that table.</returns>
-        Task<IQueryable<T>> AllAsync<T>() where T : NubeTable, new();
+        Task<IQueryable<T>> AllAsync<T>() where T : NubeTable;
 
         /// <summary>
         /// Deletes the item from the local storage.
         /// </summary>
         /// <param name="item">The item to be deleted.</param>
         /// <returns>If the removal ot the item was successful.</returns>
-        Task<bool> DeleteAsync<T>(T item) where T : NubeTable, new();
+        Task<bool> DeleteAsync<T>(T item) where T : NubeTable;
 
         /// <summary>
         /// Deletes the provided operations from the local storage.
@@ -49,7 +49,7 @@ namespace NubeSync.Client
         /// <typeparam name="T">The table type.</typeparam>
         /// <param name="predicate">The predicate for the query.</param>
         /// <returns>The records from the table matching the provided criteria.</returns>
-        Task<IQueryable<T>> FindByAsync<T>(Expression<Func<T, bool>> predicate) where T : NubeTable, new();
+        Task<IQueryable<T>> FindByAsync<T>(Expression<Func<T, bool>> predicate) where T : NubeTable;
 
         /// <summary>
         /// Find a specific item by its id.
@@ -57,7 +57,7 @@ namespace NubeSync.Client
         /// <typeparam name="T">The table type.</typeparam>
         /// <param name="id">The id of the item.</param>
         /// <returns>The item matching the provided id.</returns>
-        Task<T> FindByIdAsync<T>(string? id) where T : NubeTable?, new();
+        Task<T> FindByIdAsync<T>(string? id) where T : NubeTable?;
 
         /// <summary>
         /// Get all operations from the local storage.
@@ -78,7 +78,7 @@ namespace NubeSync.Client
         /// </summary>
         /// <param name="item">The record to be inserted.</param>
         /// <returns>If the insertion was successful.</returns>
-        Task<bool> InsertAsync<T>(T item) where T : NubeTable, new();
+        Task<bool> InsertAsync<T>(T item) where T : NubeTable;
 
         /// <summary>
         /// Sets the value of a setting in the local storage.
@@ -93,13 +93,13 @@ namespace NubeSync.Client
         /// </summary>
         /// <typeparam name="T">The type of the table.</typeparam>
         /// <returns>True if the table can be found in the local storage.</returns>
-        Task<bool> TableExistsAsync<T>() where T : NubeTable, new();
+        Task<bool> TableExistsAsync<T>() where T : NubeTable;
 
         /// <summary>
         /// Updates the given record in the local storage.
         /// </summary>
         /// <param name="item">The record to be stored.</param>
         /// <returns>If storing the record was successful.</returns>
-        Task<bool> UpdateAsync<T>(T item) where T : NubeTable, new();
+        Task<bool> UpdateAsync<T>(T item) where T : NubeTable;
     }
 }

@@ -17,23 +17,12 @@ namespace NubeSync.Client
         private const int PULL_PAGE_SIZE = 100;
         private bool _isSyncing;
 
-        /// <summary>
-        /// Checks wether there are any sync operations that have not be pushed to the server.
-        /// </summary>
-        /// <returns>True if there are unsent operations in the local storage.</returns>
         public async Task<bool> HasPendingOperationsAsync()
         {
             return (await _dataStore.GetOperationsAsync().ConfigureAwait(false)).Count() > 0;
         }
 
-        /// <summary>
-        /// Pulls all changes for this table from the server.
-        /// </summary>
-        /// <typeparam name="T">The type of the table.</typeparam>
-        /// <param name="cancelToken">Optional: A token for canceling the operation.</param>
-        /// <returns>The number of records that were changed or added in this table since the last sync.</returns>
-        /// <exception cref="PullOperationFailedException">Thrown when the table cannot be pulled from the server.</exception>
-        public async Task<int> PullTableAsync<T>(CancellationToken cancelToken = default) where T : NubeTable, new()
+        public async Task<int> PullTableAsync<T>(CancellationToken cancelToken = default) where T : NubeTable
         {
             if (_isSyncing || cancelToken.IsCancellationRequested)
             {
@@ -89,12 +78,6 @@ namespace NubeSync.Client
             }
         }
 
-        /// <summary>
-        /// Pushes the changes made in the local storage to the server.
-        /// </summary>
-        /// <param name="cancelToken">Optional: A token for canceling the operation.</param>
-        /// <returns>True if the push operation was successful.</returns>
-        /// <exception cref="PushOperationFailedException">Thrown when the changes cannot be pushed to the server.</exception>
         public async Task<bool> PushChangesAsync(CancellationToken cancelToken = default)
         {
             if (_isSyncing || cancelToken.IsCancellationRequested)
@@ -115,7 +98,7 @@ namespace NubeSync.Client
                     var options = new JsonSerializerOptions { IgnoreNullValues = true };
                     var content = new StringContent(JsonSerializer.Serialize(operations, options),
                         Encoding.UTF8, "application/json");
-                    var result = await _httpClient.PostAsync("/operations", content, cancelToken).ConfigureAwait(false);
+                    var result = await _httpClient.PostAsync(_operationsUrl, content, cancelToken).ConfigureAwait(false);
 
                     if (result.IsSuccessStatusCode)
                     {
@@ -188,7 +171,7 @@ namespace NubeSync.Client
             return false;
         }
 
-        private async Task _ProcessItem<T>(string content, T item) where T : NubeTable, new()
+        private async Task _ProcessItem<T>(string content, T item) where T : NubeTable
         {
             if (_IsItemDeleted(content, item.Id))
             {

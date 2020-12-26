@@ -88,7 +88,8 @@ namespace NubeSync.Server
                     .OrderBy(o => o.CreatedAt).ToArray();
                 await _ProcessDeletesAsync(context, deleted, type).ConfigureAwait(false);
 
-                operationGroup.ToList().ForEach(o => o.ServerUpdatedAt = DateTimeOffset.Now);
+                var now = DateTimeOffset.Now;
+                operationGroup.ToList().ForEach(o => o.ServerUpdatedAt = now);
                 await context.AddRangeAsync(operationGroup.ToList()).ConfigureAwait(false);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
@@ -192,7 +193,7 @@ namespace NubeSync.Server
                     }
                     else
                     {
-                        if (string.IsNullOrEmpty(operation.Property))
+                        if (operation.Property == null)
                         {
                             throw new InvalidOperationException($"Property of operation {operation.Id} cannot be empty");
                         }

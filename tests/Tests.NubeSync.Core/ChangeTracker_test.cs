@@ -61,11 +61,21 @@ namespace Tests.NubeSync.Core.ChangeTracker_test
 
             var createdAtItem = modifyOperations.Where(o => o.Property == "CreatedAt").First();
             Assert.Null(createdAtItem.OldValue);
-            Assert.Equal(Convert.ToString(Item.CreatedAt, CultureInfo.InvariantCulture), createdAtItem.Value);
+            Assert.Equal(Item.CreatedAt.ToString("o", CultureInfo.InvariantCulture), createdAtItem.Value);
 
             var updatedAtItem = modifyOperations.Where(o => o.Property == "UpdatedAt").First();
             Assert.Null(updatedAtItem.OldValue);
-            Assert.Equal(Convert.ToString(Item.UpdatedAt, CultureInfo.InvariantCulture), updatedAtItem.Value);
+            Assert.Equal(Item.UpdatedAt.ToString("o", CultureInfo.InvariantCulture), updatedAtItem.Value);
+        }
+
+        [Fact]
+        public async Task Sets_item_updated_at_as_operation_created_at()
+        {
+            var operations = await _changeTracker.TrackAddAsync(Item);
+
+            Assert.Equal(operations[1].CreatedAt, Item.UpdatedAt);
+            Assert.Equal(operations[2].CreatedAt, Item.UpdatedAt);
+            Assert.Equal(operations[3].CreatedAt, Item.UpdatedAt);
         }
 
         [Fact]
@@ -97,6 +107,14 @@ namespace Tests.NubeSync.Core.ChangeTracker_test
             Assert.Equal("TestItem", operation.TableName);
             Assert.Equal(Item.Id, operation.ItemId);
             Assert.Equal(OperationType.Deleted, operation.Type);
+        }
+
+        [Fact]
+        public async Task Sets_item_updated_at_as_operation_created_at()
+        {
+            var operation = (await _changeTracker.TrackDeleteAsync(Item)).First();
+
+            Assert.Equal(operation.CreatedAt, Item.UpdatedAt);
         }
 
         [Fact]
@@ -140,11 +158,11 @@ namespace Tests.NubeSync.Core.ChangeTracker_test
             Assert.Equal(Item.Name, nameOperation.OldValue);
             Assert.Equal(_newItem.Name, nameOperation.Value);
             var updatedAtOperation = operations.Where(o => o.Property == "UpdatedAt").First();
-            Assert.Equal(Convert.ToString(Item.UpdatedAt, CultureInfo.InvariantCulture), updatedAtOperation.OldValue);
-            Assert.Equal(Convert.ToString(_newItem.UpdatedAt, CultureInfo.InvariantCulture), updatedAtOperation.Value);
+            Assert.Equal(Item.UpdatedAt.ToString("o", CultureInfo.InvariantCulture), updatedAtOperation.OldValue);
+            Assert.Equal(_newItem.UpdatedAt.ToString("o", CultureInfo.InvariantCulture), updatedAtOperation.Value);
             var createdAtOperation = operations.Where(o => o.Property == "CreatedAt").First();
-            Assert.Equal(Convert.ToString(Item.CreatedAt, CultureInfo.InvariantCulture), createdAtOperation.OldValue);
-            Assert.Equal(Convert.ToString(_newItem.CreatedAt, CultureInfo.InvariantCulture), createdAtOperation.Value);
+            Assert.Equal(Item.CreatedAt.ToString("o", CultureInfo.InvariantCulture), createdAtOperation.OldValue);
+            Assert.Equal(_newItem.CreatedAt.ToString("o", CultureInfo.InvariantCulture), createdAtOperation.Value);
         }
 
         [Fact]
@@ -153,6 +171,16 @@ namespace Tests.NubeSync.Core.ChangeTracker_test
             var operations = await _changeTracker.TrackModifyAsync(Item, Item);
 
             Assert.Empty(operations);
+        }
+
+        [Fact]
+        public async Task Sets_item_updated_at_as_operation_created_at()
+        {
+            var operations = await _changeTracker.TrackModifyAsync(Item, _newItem);
+
+            Assert.Equal(operations[0].CreatedAt, _newItem.UpdatedAt);
+            Assert.Equal(operations[1].CreatedAt, _newItem.UpdatedAt);
+            Assert.Equal(operations[2].CreatedAt, _newItem.UpdatedAt);
         }
 
         [Fact]
