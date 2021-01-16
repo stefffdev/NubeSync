@@ -44,6 +44,9 @@ namespace NubeSync.Service.Controllers
             // UNCOMMENT THIS IF YOU WANT TO ACTIVATE AUTHENTICATION
             //HttpContext.VerifyUserHasAnyAcceptedScope(_authentication.ScopeRequiredByApi);
 
+            pageNumber ??= 1;
+            pageSize ??= int.MaxValue;
+
             var userId = _authentication.GetUserIdentifier(User);
             var installationId = Request.GetInstallationId();
 
@@ -54,6 +57,7 @@ namespace NubeSync.Service.Controllers
             //{
             //    return await _context.TodoItems
             //        .Where(i => i.UserId == userId && i.ServerUpdatedAt >= laterThan)
+            //        .OrderBy(i => i.ServerUpdatedAt)
             //        .Skip((pageNumber.Value - 1) * pageSize.Value)
             //        .Take(pageSize.Value)
             //        .ToListAsync();
@@ -67,6 +71,7 @@ namespace NubeSync.Service.Controllers
             {
                 return await _context.TodoItems
                     .Where(i => i.ServerUpdatedAt >= laterThan)
+                    .OrderBy(i => i.ServerUpdatedAt)
                     .Skip((pageNumber.Value - 1) * pageSize.Value)
                     .Take(pageSize.Value)
                     .ToListAsync();
@@ -75,6 +80,7 @@ namespace NubeSync.Service.Controllers
             {
                 return await _context.TodoItems
                     .Where(i => !i.DeletedAt.HasValue)
+                    .OrderBy(i => i.ServerUpdatedAt)
                     .Skip((pageNumber.Value - 1) * pageSize.Value)
                     .Take(pageSize.Value)
                     .ToListAsync();

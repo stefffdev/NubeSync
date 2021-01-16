@@ -29,7 +29,7 @@ else
 }
 
 @code { 
-    
+
     private List<TodoItem> Items { get; set; }
 
     private async Task GetItems()
@@ -54,6 +54,7 @@ else
         {
             var item = Items.First();
             item.Name = DateTime.Now.ToLongTimeString();
+            item.UpdatedAt = DateTimeOffset.Now;
 
             await Http.PutAsJsonAsync("todoitems", item);
         }
@@ -66,6 +67,7 @@ else
         var item = new TodoItem();
         item.Id = Guid.NewGuid().ToString();
         item.Name = "New Item";
+        item.UpdatedAt = DateTimeOffset.Now;
 
         await Http.PostAsJsonAsync("todoitems", item);
 
@@ -81,5 +83,5 @@ else
         }
 
         await GetItems();
-    } 
+    }
 }
