@@ -50,7 +50,7 @@ namespace NubeSync.Mobile
         private async void ContentPage_Appearing(object sender, EventArgs e)
         {
             await _dataStore.InitializeAsync();
-            await _nubeClient.AddTableAsync<TodoItem>("todoitems");
+            await _nubeClient.AddTableAsync<TodoItem>("/api/todoitems");
             
             await RefreshItemsAsync();
 
