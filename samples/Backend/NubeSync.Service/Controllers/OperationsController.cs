@@ -15,7 +15,7 @@ namespace NubeSync.Service.Controllers
     // UNCOMMENT THIS IF YOU WANT TO ACTIVATE AUTHENTICATION
     //[Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class OperationsController : ControllerBase
     {
         private readonly DataContext _context;

@@ -29,12 +29,12 @@ else
 }
 
 @code { 
-    
+
     private List<TodoItem> Items { get; set; }
 
     private async Task GetItems()
     {
-        var result = await Http.GetAsync("todoitems");
+        var result = await Http.GetAsync("api/todoitems");
         if (result.IsSuccessStatusCode)
         {
             var content = await result.Content.ReadAsStringAsync();
@@ -54,8 +54,9 @@ else
         {
             var item = Items.First();
             item.Name = DateTime.Now.ToLongTimeString();
+            item.UpdatedAt = DateTimeOffset.Now;
 
-            await Http.PutAsJsonAsync("todoitems", item);
+            await Http.PutAsJsonAsync("api/todoitems", item);
         }
 
         await GetItems();
@@ -66,8 +67,9 @@ else
         var item = new TodoItem();
         item.Id = Guid.NewGuid().ToString();
         item.Name = "New Item";
+        item.UpdatedAt = DateTimeOffset.Now;
 
-        await Http.PostAsJsonAsync("todoitems", item);
+        await Http.PostAsJsonAsync("api/todoitems", item);
 
         await GetItems();
     }
@@ -77,9 +79,9 @@ else
         if (Items != null && Items.Count > 0)
         {
             var customer = Items.Last();
-            await Http.DeleteAsync($"todoitems/{customer.Id}");
+            await Http.DeleteAsync($"api/todoitems/{customer.Id}");
         }
 
         await GetItems();
-    } 
+    }
 }
