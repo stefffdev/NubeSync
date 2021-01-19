@@ -44,7 +44,8 @@ namespace NubeSync.Mobile
                 server = "https://10.0.2.2:5001/";
             }
 
-            _nubeClient = new NubeClient(_dataStore, server, httpClient: httpClient);
+            _nubeClient = new NubeClient(_dataStore, server, httpClient: httpClient,
+                operationsUrl: "/api/operations");
         }
 
         private async void ContentPage_Appearing(object sender, EventArgs e)
@@ -55,7 +56,7 @@ namespace NubeSync.Mobile
             await RefreshItemsAsync();
 
             // this is an optional step to enable "live push/pull"
-            // see https://github.com/stefffdev/NubeSync/wiki/Advanced:-Live-updates-with-SignalR
+            // see https://github.com/stefffdev/NubeSync/wiki/Live-updates-with-SignalR
             // await ConfigureSignalRAsync();
         }
 
