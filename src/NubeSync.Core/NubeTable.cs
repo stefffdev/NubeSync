@@ -8,6 +8,28 @@ namespace NubeSync.Core
 {
     public abstract class NubeTable
     {
+        private static readonly List<Type> VALID_TYPES = new List<Type>
+        {
+            typeof (string),
+            typeof (char),
+            typeof (Guid),
+            typeof (bool),
+            typeof (byte),
+            typeof (short),
+            typeof (int),
+            typeof (long),
+            typeof (float),
+            typeof (double),
+            typeof (decimal),
+            typeof (sbyte),
+            typeof (ushort),
+            typeof (uint),
+            typeof (ulong),
+            typeof (DateTime),
+            typeof (DateTimeOffset),
+            typeof (TimeSpan),
+        };
+
         /// <summary>
         /// The timestamp when the record was saved for the first time.
         /// </summary>
@@ -33,11 +55,12 @@ namespace NubeSync.Core
             IList<PropertyInfo> props = new List<PropertyInfo>(GetType()
                 .GetProperties()
                 .Where(p => p.CanWrite &&
-                p.Name != nameof(Id) && 
+                p.Name != nameof(Id) &&
                 p.Name != "ClusteredIndex" &&
-                p.Name != "UserId" && 
-                p.Name != "ServerUpdatedAt" && 
-                p.Name != "DeletedAt"));
+                p.Name != "UserId" &&
+                p.Name != "ServerUpdatedAt" &&
+                p.Name != "DeletedAt" &&
+                _IsValidType(p.PropertyType)));
 
             foreach (var prop in props)
             {
@@ -63,6 +86,11 @@ namespace NubeSync.Core
             }
 
             return result;
+        }
+
+        private static bool _IsValidType(Type type)
+        {
+            return VALID_TYPES.Contains(type) || type.IsEnum;
         }
     }
 }
