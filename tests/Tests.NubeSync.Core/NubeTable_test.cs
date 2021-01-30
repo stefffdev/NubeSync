@@ -20,11 +20,78 @@ namespace Tests.NubeSync.Core.NubeTable_test
         }
 
         [Fact]
+        public void Does_not_return_deleted_at()
+        {
+            var result = Item.GetProperties();
+
+            Assert.False(result.ContainsKey("DeletedAt"));
+        }
+
+        [Fact]
+        public void Does_not_return_server_updated_at()
+        {
+            var result = Item.GetProperties();
+
+            Assert.False(result.ContainsKey("ServerUpdatedAt"));
+        }
+
+        [Fact]
+        public void Does_not_return_the_clustered_index()
+        {
+            var result = Item.GetProperties();
+
+            Assert.False(result.ContainsKey("ClusteredIndex"));
+        }
+
+        [Fact]
         public void Does_not_return_the_id()
         {
             var result = Item.GetProperties();
 
             Assert.False(result.ContainsKey("Id"));
+        }
+
+        [Fact]
+        public void Does_not_return_the_user_id()
+        {
+            var result = Item.GetProperties();
+
+            Assert.False(result.ContainsKey("UserId"));
+        }
+
+        [Fact]
+        public void Does_only_return_valid_types()
+        {
+            var dateTime = DateTime.Now;
+            var dateTimeOffset = DateTimeOffset.Now;
+            var item = new TestItem3
+            {
+                Array = new string[] { "1", "2", "3" },
+                Bool = true,
+                Byte = 0xFF,
+                Char = 'c',
+                ComplexType = new TestItem2(),
+                DateTime = dateTime,
+                DateTimeOffset = dateTimeOffset,
+                Decimal = 6.66M,
+                Double = 3.33,
+                Enum = TestEnum.High,
+                Float = 2.22f,
+                Guid = Guid.NewGuid(),
+                Int = 6,
+                Long = 7,
+                SByte = 8,
+                Short = 9,
+                SimpleType = "myValue",
+                TimeSpan = TimeSpan.FromSeconds(6.66),
+                UInt = 10,
+                ULong = 11,
+                UShort = 12
+            };
+
+            var result = item.GetProperties();
+
+            Assert.Equal(21, result.Count);
         }
 
         [Fact]

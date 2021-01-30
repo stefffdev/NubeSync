@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using NubeSync.Core;
+using NubeSync.Server.Data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -5,9 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using NubeSync.Core;
-using NubeSync.Server.Data;
 
 namespace NubeSync.Server
 {
@@ -107,8 +107,8 @@ namespace NubeSync.Server
             string propertyName)
         {
             return await context.Set<NubeServerOperation>()
-                .AsNoTracking().Where(o => 
-                    o.ItemId == itemId && 
+                .AsNoTracking().Where(o =>
+                    o.ItemId == itemId &&
                     o.TableName == tableName &&
                     o.Property == propertyName)
                 .MaxAsync(o => (DateTimeOffset?) o.CreatedAt)
@@ -214,7 +214,7 @@ namespace NubeSync.Server
                             var converter = TypeDescriptor.GetConverter(prop.PropertyType);
                             if (!converter.CanConvertFrom(typeof(string)))
                             {
-                                throw new InvalidOperationException($"Unable to convert value of operation {operation.Id}");
+                                throw new InvalidOperationException($"Unable to convert value {operation.Property} of operation {operation.Id}");
                             }
 
                             try
@@ -223,7 +223,7 @@ namespace NubeSync.Server
                             }
                             catch (Exception ex)
                             {
-                                throw new InvalidOperationException($"Unable to convert value of operation {operation.Id}: {ex.Message}");
+                                throw new InvalidOperationException($"Unable to convert value {operation.Property} of operation {operation.Id}: {ex.Message}");
                             }
 
                             localItem.ServerUpdatedAt = DateTimeOffset.Now;

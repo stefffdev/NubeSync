@@ -1,10 +1,10 @@
-﻿using System;
+﻿using NubeSync.Core;
+using NubeSync.Server;
+using NubeSync.Server.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NubeSync.Core;
-using NubeSync.Server;
-using NubeSync.Server.Data;
 using Xunit;
 
 namespace Tests.NubeSync.Server.OperationService_test
@@ -344,7 +344,7 @@ namespace Tests.NubeSync.Server.OperationService_test
 
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => Service.ProcessOperationsAsync(Context, operations));
 
-            Assert.Equal($"Unable to convert value of operation {operations[0].Id}: Name0 is not a valid value for Int32. (Parameter 'value')", ex.Message);
+            Assert.Equal($"Unable to convert value Value of operation {operations[0].Id}: Name0 is not a valid value for Int32. (Parameter 'value')", ex.Message);
         }
     }
 }
