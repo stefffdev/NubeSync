@@ -283,6 +283,20 @@ namespace Tests.NubeSync.Server.OperationService_test
         }
 
         [Fact]
+        public async Task Modify_sets_the_value_to_null()
+        {
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var operations = GetModifyOperation();
+            operations[0].Value = null;
+
+            await Service.ProcessOperationsAsync(Context, operations);
+
+            var item = Context.Items.Find(operations[0].ItemId);
+            Assert.Null(item.Name);
+        }
+
+        [Fact]
         public async Task Modify_throws_for_empty_property()
         {
             Context.RemoveRange(Context.Operations);

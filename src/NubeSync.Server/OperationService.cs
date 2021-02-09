@@ -219,7 +219,10 @@ namespace NubeSync.Server
 
                             try
                             {
-                                prop.SetValue(item, converter.ConvertFromInvariantString(operation.Value));
+                                var val = operation.Value == null ? operation.Value :
+                                    converter.ConvertFromInvariantString(operation.Value);
+
+                                prop.SetValue(item, val);
                             }
                             catch (Exception ex)
                             {
