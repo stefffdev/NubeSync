@@ -59,6 +59,11 @@ namespace NubeSync.Client
                     var content = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
                     items = JsonSerializer.Deserialize<List<T>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
+                    if (items is null)
+                    {
+                        break;
+                    }
+
                     foreach (var item in items)
                     {
                         await _ProcessItem(content, item).ConfigureAwait(false);
