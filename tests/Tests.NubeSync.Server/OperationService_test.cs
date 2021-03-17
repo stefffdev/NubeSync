@@ -4,6 +4,7 @@ using NubeSync.Server.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -170,9 +171,7 @@ namespace Tests.NubeSync.Server.OperationService_test
                 TableName = "NonExistent"
             };
 
-            var ex = await Assert.ThrowsAsync<NullReferenceException>(() => Service.ProcessOperationsAsync(Context, new List<NubeOperation> { operation }));
-
-            Assert.Equal("The type NonExistent cannot be found", ex.Message);
+            await Assert.ThrowsAsync<ReflectionTypeLoadException>(() => Service.ProcessOperationsAsync(Context, new List<NubeOperation> { operation }));
         }
     }
 
