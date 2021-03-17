@@ -20,7 +20,7 @@
     <Version>1.4.0-pre</Version>
     <Authors>stefffdev</Authors>
     <Description>NubeSync Server Framework</Description>
-    <PackageTags>mobile;data;sync;azure mobile app;</PackageTags>
+    <PackageTags>mobile;data;sync;azure mobile app;xamarin;maui;</PackageTags>
     <PackageProjectUrl>https://github.com/stefffdev/NubeSync</PackageProjectUrl>
     <PackageId>NubeSync.Server</PackageId>
     <Product>NubeSync.Server</Product>
