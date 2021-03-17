@@ -49,9 +49,9 @@ namespace NubeSync.Core
         /// Returns all the prorperties of the object that should be stored in the operations.
         /// This method can be overwritten to avoid reflection.
         /// </summary>
-        public virtual Dictionary<string, string?> GetProperties()
+        public virtual Dictionary<string, (string? Value, bool IsDefault)> GetProperties()
         {
-            var result = new Dictionary<string, string?>();
+            var result = new Dictionary<string, (string? Value, bool IsDefault)>();
             IList<PropertyInfo> props = new List<PropertyInfo>(GetType()
                 .GetProperties()
                 .Where(p => p.CanWrite &&
@@ -67,11 +67,11 @@ namespace NubeSync.Core
                 if (prop.GetValue(this, null) is object value &&
                     _ConvertToString(value) is string stringValue)
                 {
-                    result.Add(prop.Name, stringValue);
+                    result.Add(prop.Name, (stringValue, _IsDefaultValue(value)));
                 }
                 else
                 {
-                    result.Add(prop.Name, null);
+                    result.Add(prop.Name, (null, true)); 
                 }
             }
 
@@ -86,6 +86,31 @@ namespace NubeSync.Core
             }
 
             return result;
+        }
+
+        private static bool _IsDefaultValue(object value)
+        {
+            return value switch
+            {
+                string stringValue => string.IsNullOrEmpty(stringValue),
+                Guid guidValue => guidValue == default,
+                bool boolValue => boolValue == default,
+                byte byteValue => byteValue == default,
+                short shortValue => shortValue == default,
+                int intValue => intValue == default,
+                long longValue => longValue == default,
+                float floatValue => floatValue == default,
+                double doubleValue => doubleValue == default,
+                decimal decimalValue => decimalValue == default,
+                sbyte sbyteValue => sbyteValue == default,
+                ushort ushortValue => ushortValue == default,
+                uint uintValue => uintValue == default,
+                ulong ulongValue => ulongValue == default,
+                DateTime dateTimeValue => dateTimeValue == default,
+                DateTimeOffset dateTimeOffsetValue => dateTimeOffsetValue == default,
+                TimeSpan timeSpanValue => timeSpanValue == default,
+                _ => throw new ArgumentException($"{value.GetType().Name} is not a supported property type"),
+            };
         }
 
         private static bool _IsValidType(Type type)

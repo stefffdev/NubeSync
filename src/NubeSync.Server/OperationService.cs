@@ -50,7 +50,6 @@ namespace NubeSync.Server
             string installationId = "")
         {
             var serverOperations = operations
-                .Where(o => !_OperationExists(context, o))
                 .Select(x => new NubeServerOperation
                 {
                     Id = x.Id,
@@ -73,20 +72,25 @@ namespace NubeSync.Server
                     throw new NullReferenceException($"The type {operationGroup.Key.TableName} cannot be found");
                 }
 
-                var added = operationGroup
-                    .Where(o => o.Type == OperationType.Added)
-                    .OrderBy(o => o.CreatedAt).ToArray();
-                await _ProcessAddsAsync(context, added, type).ConfigureAwait(false);
+                var itemOperations = operationGroup.OrderBy(o => o.CreatedAt).ToArray();
 
-                var modified = operationGroup
-                    .Where(o => o.Type == OperationType.Modified)
-                    .OrderBy(o => o.CreatedAt).ToArray();
-                await _ProcessModifiesAsync(context, modified, type).ConfigureAwait(false);
+                if (operationGroup.Any(o => o.Type == OperationType.Added))
+                {
+                    await _ProcessAddAsync(context, itemOperations, type).ConfigureAwait(false);
+                }
+                else if (operationGroup.Any(o => o.Type == OperationType.Deleted))
+                {
+                    await _ProcessDeleteAsync(context, itemOperations, type).ConfigureAwait(false);
 
-                var deleted = operationGroup
-                    .Where(o => o.Type == OperationType.Deleted)
-                    .OrderBy(o => o.CreatedAt).ToArray();
-                await _ProcessDeletesAsync(context, deleted, type).ConfigureAwait(false);
+                }
+                else if (operationGroup.All(o => o.Type == OperationType.Modified))
+                {
+                    await _ProcessModifyAsync(context, itemOperations, type).ConfigureAwait(false);
+                }
+                else
+                {
+                    throw new Exception("Unknown operation sequence");
+                }
 
                 var now = DateTimeOffset.Now;
                 operationGroup.ToList().ForEach(o => o.ServerUpdatedAt = now);
@@ -135,47 +139,45 @@ namespace NubeSync.Server
             return type;
         }
 
-        private bool _OperationExists(DbContext context, NubeOperation operation)
+        private async Task _ProcessAddAsync(DbContext context, NubeServerOperation[] operations, Type type)
         {
-            return context.Set<NubeServerOperation>().Any(o => o.Id == operation.Id);
+            var addOperation = operations.Where(o => o.Type == OperationType.Added).First();
+
+            var newItem = _nubeTableTypes[type.Name].Item2();
+            if (newItem == null)
+            {
+                throw new NullReferenceException($"Item of type {type} cannot be created");
+            }
+
+            if (newItem is NubeServerTable entity)
+            {
+                entity.Id = addOperation.ItemId;
+                entity.UserId = addOperation.UserId;
+                entity.ServerUpdatedAt = DateTimeOffset.Now;
+            }
+
+            foreach (var operation in operations.Where(o => o.Type == OperationType.Modified))
+            {
+                _UpdatePropertyFromOperation(newItem, operation, type);
+            }
+
+            await context.AddAsync(newItem).ConfigureAwait(false);
         }
 
-        private async Task _ProcessAddsAsync(DbContext context, NubeServerOperation[] operations, Type type)
+        private async Task _ProcessDeleteAsync(DbContext context, NubeServerOperation[] operations, Type type)
         {
-            foreach (var operation in operations)
+            var deleteOperation = operations.Where(o => o.Type == OperationType.Deleted).First();
+
+            var item = await context.FindAsync(type, deleteOperation.ItemId).ConfigureAwait(false);
+            if (item is NubeServerTable localItem)
             {
-                var newItem = _nubeTableTypes[type.Name].Item2();
-                if (newItem == null)
-                {
-                    throw new NullReferenceException($"Item of type {type} cannot be created");
-                }
-
-                if (newItem is NubeServerTable entity)
-                {
-                    entity.Id = operation.ItemId;
-                    entity.UserId = operation.UserId;
-                    entity.ServerUpdatedAt = DateTimeOffset.Now;
-                }
-
-                await context.AddAsync(newItem).ConfigureAwait(false);
+                var now = DateTimeOffset.Now;
+                localItem.DeletedAt = now;
+                localItem.ServerUpdatedAt = now;
             }
         }
 
-        private async Task _ProcessDeletesAsync(DbContext context, NubeServerOperation[] operations, Type type)
-        {
-            foreach (var operation in operations)
-            {
-                var item = await context.FindAsync(type, operation.ItemId).ConfigureAwait(false);
-                if (item is NubeServerTable localItem)
-                {
-                    var now = DateTimeOffset.Now;
-                    localItem.DeletedAt = now;
-                    localItem.ServerUpdatedAt = now;
-                }
-            }
-        }
-
-        private async Task _ProcessModifiesAsync(DbContext context, NubeServerOperation[] operations, Type type)
+        private async Task _ProcessModifyAsync(DbContext context, NubeServerOperation[] operations, Type type)
         {
             if (!operations.Any())
             {
@@ -198,38 +200,14 @@ namespace NubeSync.Server
                             throw new InvalidOperationException($"Property of operation {operation.Id} cannot be empty");
                         }
 
-                        if (await _GetLastChangeForPropertyAsync(context, operation.ItemId, operation.TableName, operation.Property).ConfigureAwait(false) > operation.CreatedAt)
+                        if (localItem.UpdatedAt >= operation.CreatedAt &&
+                            await _GetLastChangeForPropertyAsync(context, operation.ItemId, operation.TableName, operation.Property).ConfigureAwait(false) > operation.CreatedAt)
                         {
                             operation.ProcessingType = ProcessingType.DiscaredOutdated;
                         }
                         else
                         {
-                            var prop = type.GetProperty(operation.Property,
-                                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                            if (prop == null)
-                            {
-                                throw new InvalidOperationException($"Property {operation.Property} not found on item {type}");
-                            }
-
-                            var converter = TypeDescriptor.GetConverter(prop.PropertyType);
-                            if (!converter.CanConvertFrom(typeof(string)))
-                            {
-                                throw new InvalidOperationException($"Unable to convert value {operation.Property} of operation {operation.Id}");
-                            }
-
-                            try
-                            {
-                                var val = operation.Value == null ? operation.Value :
-                                    converter.ConvertFromInvariantString(operation.Value);
-
-                                prop.SetValue(item, val);
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new InvalidOperationException($"Unable to convert value {operation.Property} of operation {operation.Id}: {ex.Message}");
-                            }
-
-                            localItem.ServerUpdatedAt = DateTimeOffset.Now;
+                            _UpdatePropertyFromOperation(item, operation, type);
                         }
                     }
                 }
@@ -237,6 +215,43 @@ namespace NubeSync.Server
             else
             {
                 throw new InvalidOperationException($"Item with the id {operations[0].ItemId} cannot be found");
+            }
+        }
+
+        private void _UpdatePropertyFromOperation(object item, NubeServerOperation operation, Type type)
+        {
+            if (string.IsNullOrEmpty(operation.Property))
+            {
+                throw new InvalidOperationException($"Property name cannot be empty");
+            }
+
+            var prop = type.GetProperty(operation.Property, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (prop == null)
+            {
+                throw new InvalidOperationException($"Property {operation.Property} not found on item {type}");
+            }
+
+            var converter = TypeDescriptor.GetConverter(prop.PropertyType);
+            if (!converter.CanConvertFrom(typeof(string)))
+            {
+                throw new InvalidOperationException($"Unable to convert value {operation.Property} of operation {operation.Id}");
+            }
+
+            try
+            {
+                var val = operation.Value == null ? operation.Value :
+                    converter.ConvertFromInvariantString(operation.Value);
+
+                prop.SetValue(item, val);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Unable to convert value {operation.Property} of operation {operation.Id}: {ex.Message}");
+            }
+
+            if (item is NubeServerTable localItem)
+            {
+                localItem.ServerUpdatedAt = DateTimeOffset.Now;
             }
         }
     }

@@ -28,7 +28,7 @@ namespace NubeSync.Core
 
             foreach (var property in item.GetProperties())
             {
-                if (property.Value != default)
+                if (!property.Value.IsDefault)
                 {
                     operations.Add(new NubeOperation()
                     {
@@ -36,7 +36,7 @@ namespace NubeSync.Core
                         ItemId = item.Id,
                         Type = OperationType.Modified,
                         Property = property.Key,
-                        Value = property.Value,
+                        Value = property.Value.Value,
                         CreatedAt = item.UpdatedAt,
                     });
                 }
@@ -89,8 +89,8 @@ namespace NubeSync.Core
 
             foreach (var property in newProperties)
             {
-                var oldPropertyValue = oldProperties[property.Key];
-                if (oldPropertyValue != property.Value)
+                var oldPropertyValue = oldProperties[property.Key].Value;
+                if (oldPropertyValue != property.Value.Value)
                 {
                     operations.Add(new NubeOperation()
                     {
@@ -98,7 +98,7 @@ namespace NubeSync.Core
                         ItemId = newItem.Id,
                         Type = OperationType.Modified,
                         Property = property.Key,
-                        Value = property.Value,
+                        Value = property.Value.Value,
                         OldValue = oldPropertyValue,
                         CreatedAt = newItem.UpdatedAt,
                     });
