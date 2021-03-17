@@ -135,13 +135,19 @@ namespace Tests.NubeSync.Server.OperationService_test
         }
 
         [Fact]
-        public async Task Skips_operations_that_already_were_processed()
+        public async Task Throws_when_add_operations_are_posted_multiple_times()
         {
-            Context.HasCalledSave = false;
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await Service.ProcessOperationsAsync(Context, NewOperations, "User"));
 
-            await Service.ProcessOperationsAsync(Context, NewOperations, "User");
+            Assert.Equal("Operations cannot be added to the store, were these operations already processed?", ex.Message);
+        }
 
-            Assert.False(Context.HasCalledSave);
+        [Fact]
+        public async Task Throws_when_modify_operations_are_posted_multiple_times()
+        {
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await Service.ProcessOperationsAsync(Context, NewOperations.Skip(1).ToArray(), "User"));
+
+            Assert.Equal("Operations cannot be added to the store, were these operations already processed?", ex.Message);
         }
 
         [Fact]
@@ -239,6 +245,8 @@ namespace Tests.NubeSync.Server.OperationService_test
         public async Task Modify_sets_processing_type_to_discarded_outdated_when_newer_operation_was_processed()
         {
             Context.RemoveRange(Context.Operations);
+            var item1 = Context.Items.Where(i => i.Id == "1").FirstOrDefault();
+            item1.UpdatedAt = DateTimeOffset.Now.AddMinutes(5);
             Context.SaveChanges();
             var operations = GetModifyOperation();
             operations[0].CreatedAt = DateTimeOffset.Now;
@@ -251,6 +259,24 @@ namespace Tests.NubeSync.Server.OperationService_test
 
             var operation = Context.Operations.Find("Op102");
             Assert.Equal(ProcessingType.DiscaredOutdated, operation.ProcessingType);
+        }
+
+        [Fact]
+        public async Task Modify_does_not_set_processing_type_to_discarded_outdated_when_updatedat_of_the_item_is_older()
+        {
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var operations = GetModifyOperation();
+            operations[0].CreatedAt = DateTimeOffset.Now;
+            await Service.ProcessOperationsAsync(Context, operations);
+            var secondOperations = GetModifyOperation();
+            secondOperations[0].Id = "Op102";
+            secondOperations[0].CreatedAt = DateTimeOffset.Now.AddMinutes(-5);
+
+            await Service.ProcessOperationsAsync(Context, secondOperations);
+
+            var operation = Context.Operations.Find("Op102");
+            Assert.Equal(ProcessingType.Processed, operation.ProcessingType);
         }
 
         [Fact]

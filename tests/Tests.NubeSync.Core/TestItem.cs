@@ -8,5 +8,7 @@ namespace Tests.NubeSync.Core
         public DateTimeOffset? DeletedAt { get; set; }
 
         public string Name { get; set; }
+
+        public string UnchangedProperty { get; set; }
     }
 }

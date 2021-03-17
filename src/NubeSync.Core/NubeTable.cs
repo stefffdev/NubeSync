@@ -93,6 +93,7 @@ namespace NubeSync.Core
             return value switch
             {
                 string stringValue => string.IsNullOrEmpty(stringValue),
+                char charValue => charValue == default,
                 Guid guidValue => guidValue == default,
                 bool boolValue => boolValue == default,
                 byte byteValue => byteValue == default,
@@ -109,7 +110,7 @@ namespace NubeSync.Core
                 DateTime dateTimeValue => dateTimeValue == default,
                 DateTimeOffset dateTimeOffsetValue => dateTimeOffsetValue == default,
                 TimeSpan timeSpanValue => timeSpanValue == default,
-                _ => throw new ArgumentException($"{value.GetType().Name} is not a supported property type"),
+                _ => false,
             };
         }
 

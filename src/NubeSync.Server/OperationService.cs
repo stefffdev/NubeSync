@@ -94,7 +94,16 @@ namespace NubeSync.Server
 
                 var now = DateTimeOffset.Now;
                 operationGroup.ToList().ForEach(o => o.ServerUpdatedAt = now);
-                await context.AddRangeAsync(operationGroup.ToList()).ConfigureAwait(false);
+
+                try
+                {
+                    await context.AddRangeAsync(operationGroup.ToList()).ConfigureAwait(false);
+                }
+                catch (InvalidOperationException)
+                {
+                    throw new InvalidOperationException("Operations cannot be added to the store, were these operations already processed?");
+                }
+
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
@@ -161,7 +170,14 @@ namespace NubeSync.Server
                 _UpdatePropertyFromOperation(newItem, operation, type);
             }
 
-            await context.AddAsync(newItem).ConfigureAwait(false);
+            try
+            {
+                await context.AddAsync(newItem).ConfigureAwait(false);
+            }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException("Operations cannot be added to the store, were these operations already processed?");
+            }
         }
 
         private async Task _ProcessDeleteAsync(DbContext context, NubeServerOperation[] operations, Type type)
