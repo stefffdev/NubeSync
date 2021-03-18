@@ -1034,9 +1034,6 @@ namespace NubeSync.Mobile.Droid
 			global::Xamarin.Forms.Platform.Android.Resource.Color.mtrl_choice_chip_ripple_color = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_choice_chip_ripple_color;
 			global::Xamarin.Forms.Platform.Android.Resource.Color.mtrl_choice_chip_text_color = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_choice_chip_text_color;
 			global::Xamarin.Forms.Platform.Android.Resource.Color.mtrl_error = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_error;
-			global::Xamarin.Forms.Platform.Android.Resource.Color.mtrl_extended_fab_bg_color_selector = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_extended_fab_bg_color_selector;
-			global::Xamarin.Forms.Platform.Android.Resource.Color.mtrl_extended_fab_ripple_color = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_extended_fab_ripple_color;
-			global::Xamarin.Forms.Platform.Android.Resource.Color.mtrl_extended_fab_text_color_selector = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_extended_fab_text_color_selector;
 			global::Xamarin.Forms.Platform.Android.Resource.Color.mtrl_fab_ripple_color = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_fab_ripple_color;
 			global::Xamarin.Forms.Platform.Android.Resource.Color.mtrl_filled_background_color = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_filled_background_color;
 			global::Xamarin.Forms.Platform.Android.Resource.Color.mtrl_filled_icon_tint = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_filled_icon_tint;
@@ -1517,13 +1514,6 @@ namespace NubeSync.Mobile.Droid
 			global::Xamarin.Forms.Platform.Android.Resource.Drawable.design_ic_visibility_off = global::NubeSync.Mobile.Droid.Resource.Drawable.design_ic_visibility_off;
 			global::Xamarin.Forms.Platform.Android.Resource.Drawable.design_password_eye = global::NubeSync.Mobile.Droid.Resource.Drawable.design_password_eye;
 			global::Xamarin.Forms.Platform.Android.Resource.Drawable.design_snackbar_background = global::NubeSync.Mobile.Droid.Resource.Drawable.design_snackbar_background;
-			global::Xamarin.Forms.Platform.Android.Resource.Drawable.ic_calendar_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_calendar_black_24dp;
-			global::Xamarin.Forms.Platform.Android.Resource.Drawable.ic_clear_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_clear_black_24dp;
-			global::Xamarin.Forms.Platform.Android.Resource.Drawable.ic_edit_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_edit_black_24dp;
-			global::Xamarin.Forms.Platform.Android.Resource.Drawable.ic_keyboard_arrow_left_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_keyboard_arrow_left_black_24dp;
-			global::Xamarin.Forms.Platform.Android.Resource.Drawable.ic_keyboard_arrow_right_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_keyboard_arrow_right_black_24dp;
-			global::Xamarin.Forms.Platform.Android.Resource.Drawable.ic_menu_arrow_down_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_menu_arrow_down_black_24dp;
-			global::Xamarin.Forms.Platform.Android.Resource.Drawable.ic_menu_arrow_up_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_menu_arrow_up_black_24dp;
 			global::Xamarin.Forms.Platform.Android.Resource.Drawable.ic_mtrl_checked_circle = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_mtrl_checked_circle;
 			global::Xamarin.Forms.Platform.Android.Resource.Drawable.ic_mtrl_chip_checked_black = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_mtrl_chip_checked_black;
 			global::Xamarin.Forms.Platform.Android.Resource.Drawable.ic_mtrl_chip_checked_circle = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_mtrl_chip_checked_circle;
@@ -1668,7 +1658,6 @@ namespace NubeSync.Mobile.Droid
 			global::Xamarin.Forms.Platform.Android.Resource.Id.filled = global::NubeSync.Mobile.Droid.Resource.Id.filled;
 			global::Xamarin.Forms.Platform.Android.Resource.Id.fill_horizontal = global::NubeSync.Mobile.Droid.Resource.Id.fill_horizontal;
 			global::Xamarin.Forms.Platform.Android.Resource.Id.fill_vertical = global::NubeSync.Mobile.Droid.Resource.Id.fill_vertical;
-			global::Xamarin.Forms.Platform.Android.Resource.Id.filter_chip = global::NubeSync.Mobile.Droid.Resource.Id.filter_chip;
 			global::Xamarin.Forms.Platform.Android.Resource.Id.fitToContents = global::NubeSync.Mobile.Droid.Resource.Id.fitToContents;
 			global::Xamarin.Forms.Platform.Android.Resource.Id.@fixed = global::NubeSync.Mobile.Droid.Resource.Id.@fixed;
 			global::Xamarin.Forms.Platform.Android.Resource.Id.flyoutcontent_appbar = global::NubeSync.Mobile.Droid.Resource.Id.flyoutcontent_appbar;
@@ -4481,9 +4470,6 @@ namespace NubeSync.Mobile.Droid
 			global::Xamarin.Forms.Platform.Resource.Color.mtrl_choice_chip_ripple_color = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_choice_chip_ripple_color;
 			global::Xamarin.Forms.Platform.Resource.Color.mtrl_choice_chip_text_color = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_choice_chip_text_color;
 			global::Xamarin.Forms.Platform.Resource.Color.mtrl_error = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_error;
-			global::Xamarin.Forms.Platform.Resource.Color.mtrl_extended_fab_bg_color_selector = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_extended_fab_bg_color_selector;
-			global::Xamarin.Forms.Platform.Resource.Color.mtrl_extended_fab_ripple_color = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_extended_fab_ripple_color;
-			global::Xamarin.Forms.Platform.Resource.Color.mtrl_extended_fab_text_color_selector = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_extended_fab_text_color_selector;
 			global::Xamarin.Forms.Platform.Resource.Color.mtrl_fab_ripple_color = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_fab_ripple_color;
 			global::Xamarin.Forms.Platform.Resource.Color.mtrl_filled_background_color = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_filled_background_color;
 			global::Xamarin.Forms.Platform.Resource.Color.mtrl_filled_icon_tint = global::NubeSync.Mobile.Droid.Resource.Color.mtrl_filled_icon_tint;
@@ -4964,13 +4950,6 @@ namespace NubeSync.Mobile.Droid
 			global::Xamarin.Forms.Platform.Resource.Drawable.design_ic_visibility_off = global::NubeSync.Mobile.Droid.Resource.Drawable.design_ic_visibility_off;
 			global::Xamarin.Forms.Platform.Resource.Drawable.design_password_eye = global::NubeSync.Mobile.Droid.Resource.Drawable.design_password_eye;
 			global::Xamarin.Forms.Platform.Resource.Drawable.design_snackbar_background = global::NubeSync.Mobile.Droid.Resource.Drawable.design_snackbar_background;
-			global::Xamarin.Forms.Platform.Resource.Drawable.ic_calendar_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_calendar_black_24dp;
-			global::Xamarin.Forms.Platform.Resource.Drawable.ic_clear_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_clear_black_24dp;
-			global::Xamarin.Forms.Platform.Resource.Drawable.ic_edit_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_edit_black_24dp;
-			global::Xamarin.Forms.Platform.Resource.Drawable.ic_keyboard_arrow_left_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_keyboard_arrow_left_black_24dp;
-			global::Xamarin.Forms.Platform.Resource.Drawable.ic_keyboard_arrow_right_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_keyboard_arrow_right_black_24dp;
-			global::Xamarin.Forms.Platform.Resource.Drawable.ic_menu_arrow_down_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_menu_arrow_down_black_24dp;
-			global::Xamarin.Forms.Platform.Resource.Drawable.ic_menu_arrow_up_black_24dp = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_menu_arrow_up_black_24dp;
 			global::Xamarin.Forms.Platform.Resource.Drawable.ic_mtrl_checked_circle = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_mtrl_checked_circle;
 			global::Xamarin.Forms.Platform.Resource.Drawable.ic_mtrl_chip_checked_black = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_mtrl_chip_checked_black;
 			global::Xamarin.Forms.Platform.Resource.Drawable.ic_mtrl_chip_checked_circle = global::NubeSync.Mobile.Droid.Resource.Drawable.ic_mtrl_chip_checked_circle;
@@ -5115,7 +5094,6 @@ namespace NubeSync.Mobile.Droid
 			global::Xamarin.Forms.Platform.Resource.Id.filled = global::NubeSync.Mobile.Droid.Resource.Id.filled;
 			global::Xamarin.Forms.Platform.Resource.Id.fill_horizontal = global::NubeSync.Mobile.Droid.Resource.Id.fill_horizontal;
 			global::Xamarin.Forms.Platform.Resource.Id.fill_vertical = global::NubeSync.Mobile.Droid.Resource.Id.fill_vertical;
-			global::Xamarin.Forms.Platform.Resource.Id.filter_chip = global::NubeSync.Mobile.Droid.Resource.Id.filter_chip;
 			global::Xamarin.Forms.Platform.Resource.Id.fitToContents = global::NubeSync.Mobile.Droid.Resource.Id.fitToContents;
 			global::Xamarin.Forms.Platform.Resource.Id.@fixed = global::NubeSync.Mobile.Droid.Resource.Id.@fixed;
 			global::Xamarin.Forms.Platform.Resource.Id.flyoutcontent_appbar = global::NubeSync.Mobile.Droid.Resource.Id.flyoutcontent_appbar;
