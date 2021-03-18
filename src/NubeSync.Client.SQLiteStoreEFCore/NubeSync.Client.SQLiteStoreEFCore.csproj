@@ -17,10 +17,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.3.2</Version>
+    <Version>1.4.0</Version>
     <Authors>stefffdev</Authors>
     <Description>NubeSync Client Framework with SQLite Storage using Entity Framework Core</Description>
-    <PackageTags>mobile;data;sync;azure mobile app;</PackageTags>
+    <PackageTags>mobile;data;sync;azure mobile app;xamarin;maui;</PackageTags>
     <PackageProjectUrl>https://github.com/stefffdev/NubeSync</PackageProjectUrl>
     <PackageId>NubeSync.Client.SQLiteStoreEFCore</PackageId>
     <Product>NubeSync.Client.SQLiteStoreEFCore</Product>

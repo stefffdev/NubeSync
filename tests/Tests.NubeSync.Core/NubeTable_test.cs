@@ -99,10 +99,14 @@ namespace Tests.NubeSync.Core.NubeTable_test
         {
             var result = Item.GetProperties();
 
-            Assert.Equal(3, result.Count);
-            Assert.Equal(Item.Name, result["Name"]);
-            Assert.Equal(Item.CreatedAt.ToString("o", CultureInfo.InvariantCulture), result["CreatedAt"]);
-            Assert.Equal(Item.UpdatedAt.ToString("o", CultureInfo.InvariantCulture), result["UpdatedAt"]);
+            Assert.Equal(4, result.Count);
+            Assert.True(result["UnchangedProperty"].IsDefault);
+            Assert.False(result["Name"].IsDefault);
+            Assert.False(result["CreatedAt"].IsDefault);
+            Assert.False(result["UpdatedAt"].IsDefault);
+            Assert.Equal(Item.Name, result["Name"].Value);
+            Assert.Equal(Item.CreatedAt.ToString("o", CultureInfo.InvariantCulture), result["CreatedAt"].Value);
+            Assert.Equal(Item.UpdatedAt.ToString("o", CultureInfo.InvariantCulture), result["UpdatedAt"].Value);
         }
 
         [Fact]
@@ -117,7 +121,7 @@ namespace Tests.NubeSync.Core.NubeTable_test
 
             var result = item.GetProperties();
 
-            Assert.Null(result["Name"]);
+            Assert.Null(result["Name"].Value);
         }
     }
 }
