@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.4.0</Version>
+    <Version>1.5.0-pre</Version>
     <Authors>stefffdev</Authors>
     <Description>NubeSync Core Package</Description>
     <PackageTags>mobile;data;sync;azure mobile app;</PackageTags>
