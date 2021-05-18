@@ -93,9 +93,40 @@ namespace Tests.NubeSync.Server.OperationService_test
             operations1.AddRange(operations2);
 
             await Service.ProcessOperationsAsync(Context, operations1);
-
+            
             var item = Context.Items.Find("1");
             Assert.Equal("n2", item.Name);
+        }
+
+        [Fact]
+        public async Task Returns_the_modified_records()
+        {
+            await ClearDatabaseAsync();
+            var operations = NewOperations;
+
+            var modify = GetModifyOperation().First();
+            modify.Id = "Op110";
+            operations.Add(modify);
+            var result = await Service.ProcessOperationsAsync(Context, operations, "User");
+
+            var modify2 = GetModifyOperation();
+            modify2[0].Id = "Op111";
+            modify2[0].Value = "NewName";
+            result.AddRange(await Service.ProcessOperationsAsync(Context, modify2, "User"));
+
+            var delete = GetDeleteOperation();
+            delete[0].Id = "Op120";
+            result.AddRange(await Service.ProcessOperationsAsync(Context, delete, "User"));
+
+            Assert.Equal(4, result.Count);
+            Assert.Equal(OperationType.Added, result[0].Type);
+            Assert.True(result[0].Entity is TestItem item1 && item1.Id == "1");
+            Assert.Equal(OperationType.Added, result[1].Type);
+            Assert.True(result[1].Entity is TestItem item2 && item2.Id == "2");
+            Assert.Equal(OperationType.Modified, result[2].Type);
+            Assert.True(result[2].Entity is TestItem item3 && item3.Id == "1");
+            Assert.Equal(OperationType.Deleted, result[3].Type);
+            Assert.True(result[3].Entity is TestItem item4 && item4.Id == "1");
         }
 
         [Fact]
@@ -191,6 +222,19 @@ namespace Tests.NubeSync.Server.OperationService_test
             Assert.Equal(userId, item.UserId);
             Assert.True(item.ServerUpdatedAt > DateTimeOffset.Now.AddSeconds(-1));
         }
+
+        [Fact]
+        public async Task Throws_when_type_is_not_a_nube_server_table()
+        {
+            Service.RegisterTable(typeof(TestItemInvalid));
+            await ClearDatabaseAsync();
+            var operations = GetAddOperation();
+            operations[0].TableName = "TestItemInvalid";
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => Service.ProcessOperationsAsync(Context, operations, "userId"));
+
+            Assert.Equal("Created item is not of type NubeServerTable", ex.Message);
+        }
     }
 
     public class Process_operations_delete : NubeSyncServerTestBase
@@ -209,6 +253,20 @@ namespace Tests.NubeSync.Server.OperationService_test
             Assert.Equal(item.DeletedAt, item.ServerUpdatedAt);
             Assert.True(item.ServerUpdatedAt > DateTimeOffset.Now.AddSeconds(-1));
             Assert.True(item.DeletedAt > DateTimeOffset.Now.AddSeconds(-1));
+        }
+
+        [Fact]
+        public async Task Throws_when_type_is_not_a_nube_server_table()
+        {
+            Service.RegisterTable(typeof(TestItemInvalid));
+            Context.RemoveRange(Context.Operations);
+            Context.SaveChanges();
+            var operations = GetDeleteOperation();
+            operations[0].TableName = "TestItemInvalid";
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => Service.ProcessOperationsAsync(Context, operations, "userId"));
+
+            Assert.Equal("Deleted item is not of type NubeServerTable", ex.Message);
         }
     }
 

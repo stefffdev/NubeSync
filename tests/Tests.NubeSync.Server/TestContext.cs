@@ -17,6 +17,8 @@ namespace Tests.NubeSync.Server
 
         public DbSet<TestItem> Items { get; set; }
 
+        public DbSet<TestItemInvalid> InvalidItems { get; set; }
+
         public DbSet<NubeServerOperation> Operations { get; set; }
 
         public override ValueTask<object> FindAsync(Type entityType, params object[] keyValues)

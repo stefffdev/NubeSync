@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NubeSync.Core;
+using NubeSync.Server.Data;
 
 namespace NubeSync.Server
 {
@@ -26,7 +27,7 @@ namespace NubeSync.Server
         /// <param name="operations">The operations to be processed.</param>
         /// <param name="userId">The is of the user that processes the operations.</param>
         /// <param name="installationId">The installationId that processes the operations.</param>
-        /// <returns></returns>
-        Task ProcessOperationsAsync(DbContext context, IList<NubeOperation> operations, string userId = "", string installationId = "");
+        /// <returns>A list of all records that were created or changed and the OperationType that caused the change.</returns>
+        Task<List<(NubeServerTable Entity, OperationType Type)>> ProcessOperationsAsync(DbContext context, IList<NubeOperation> operations, string userId = "", string installationId = "");
     }
 }

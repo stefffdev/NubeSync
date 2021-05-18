@@ -43,12 +43,14 @@ namespace NubeSync.Server
                 o.InstallationId != installationId).Any();
         }
 
-        public async Task ProcessOperationsAsync(
+        public async Task<List<(NubeServerTable Entity, OperationType Type)>> ProcessOperationsAsync(
             DbContext context,
             IList<NubeOperation> operations,
             string userId = "",
             string installationId = "")
         {
+            var result = new List<(NubeServerTable, OperationType)>();
+
             var serverOperations = operations
                 .Select(x => new NubeServerOperation
                 {
@@ -64,6 +66,8 @@ namespace NubeSync.Server
                     InstallationId = installationId
                 }).ToList();
 
+            var operationGroups = serverOperations.GroupBy(x => new { x.TableName, x.ItemId });
+
             foreach (var operationGroup in serverOperations.GroupBy(x => new { x.TableName, x.ItemId }))
             {
                 var type = _GetTableType(operationGroup.Key.TableName);
@@ -76,16 +80,17 @@ namespace NubeSync.Server
 
                 if (operationGroup.Any(o => o.Type == OperationType.Added))
                 {
-                    await _ProcessAddAsync(context, itemOperations, type).ConfigureAwait(false);
+                    result.Add(await _ProcessAddAsync(context, itemOperations, type).ConfigureAwait(false));
                 }
                 else if (operationGroup.Any(o => o.Type == OperationType.Deleted))
                 {
-                    await _ProcessDeleteAsync(context, itemOperations, type).ConfigureAwait(false);
+                    result.Add(await _ProcessDeleteAsync(context, itemOperations, type).ConfigureAwait(false));
 
                 }
-                else if (operationGroup.All(o => o.Type == OperationType.Modified))
+                else if (operationGroup.All(o => o.Type == OperationType.Modified) &&
+                    itemOperations.Any())
                 {
-                    await _ProcessModifyAsync(context, itemOperations, type).ConfigureAwait(false);
+                    result.Add(await _ProcessModifyAsync(context, itemOperations, type).ConfigureAwait(false));
                 }
                 else
                 {
@@ -106,6 +111,8 @@ namespace NubeSync.Server
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
+
+            return result;
         }
 
         public void RegisterTable(Type type)
@@ -148,7 +155,10 @@ namespace NubeSync.Server
             return type;
         }
 
-        private async Task _ProcessAddAsync(DbContext context, NubeServerOperation[] operations, Type type)
+        private async Task<(NubeServerTable, OperationType)> _ProcessAddAsync(
+            DbContext context,
+            NubeServerOperation[] operations,
+            Type type)
         {
             var addOperation = operations.Where(o => o.Type == OperationType.Added).First();
 
@@ -163,24 +173,33 @@ namespace NubeSync.Server
                 entity.Id = addOperation.ItemId;
                 entity.UserId = addOperation.UserId;
                 entity.ServerUpdatedAt = DateTimeOffset.Now;
-            }
 
-            foreach (var operation in operations.Where(o => o.Type == OperationType.Modified))
-            {
-                _UpdatePropertyFromOperation(newItem, operation, type);
-            }
+                foreach (var operation in operations.Where(o => o.Type == OperationType.Modified))
+                {
+                    _UpdatePropertyFromOperation(newItem, operation, type);
+                }
 
-            try
-            {
-                await context.AddAsync(newItem).ConfigureAwait(false);
+                try
+                {
+                    await context.AddAsync(newItem).ConfigureAwait(false);
+                }
+                catch (InvalidOperationException)
+                {
+                    throw new InvalidOperationException("Operations cannot be added to the store, were these operations already processed?");
+                }
+
+                return (entity, OperationType.Added);
             }
-            catch (InvalidOperationException)
+            else
             {
-                throw new InvalidOperationException("Operations cannot be added to the store, were these operations already processed?");
+                throw new InvalidOperationException("Created item is not of type NubeServerTable");
             }
         }
 
-        private async Task _ProcessDeleteAsync(DbContext context, NubeServerOperation[] operations, Type type)
+        private async Task<(NubeServerTable, OperationType)> _ProcessDeleteAsync(
+            DbContext context,
+            NubeServerOperation[] operations,
+            Type type)
         {
             var deleteOperation = operations.Where(o => o.Type == OperationType.Deleted).First();
 
@@ -190,16 +209,20 @@ namespace NubeSync.Server
                 var now = DateTimeOffset.Now;
                 localItem.DeletedAt = now;
                 localItem.ServerUpdatedAt = now;
+
+                return (localItem, OperationType.Deleted);
+            }
+            else
+            {
+                throw new InvalidOperationException("Deleted item is not of type NubeServerTable");
             }
         }
 
-        private async Task _ProcessModifyAsync(DbContext context, NubeServerOperation[] operations, Type type)
+        private async Task<(NubeServerTable, OperationType)> _ProcessModifyAsync(
+            DbContext context,
+            NubeServerOperation[] operations,
+            Type type)
         {
-            if (!operations.Any())
-            {
-                return;
-            }
-
             var item = await context.FindAsync(type, operations[0].ItemId).ConfigureAwait(false);
             if (item is NubeServerTable localItem)
             {
@@ -227,6 +250,8 @@ namespace NubeSync.Server
                         }
                     }
                 }
+
+                return (localItem, OperationType.Modified);
             }
             else
             {
@@ -234,7 +259,10 @@ namespace NubeSync.Server
             }
         }
 
-        private void _UpdatePropertyFromOperation(object item, NubeServerOperation operation, Type type)
+        private void _UpdatePropertyFromOperation(
+            object item,
+            NubeServerOperation operation,
+            Type type)
         {
             if (string.IsNullOrEmpty(operation.Property))
             {
