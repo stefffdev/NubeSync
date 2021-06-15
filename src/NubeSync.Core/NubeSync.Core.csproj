@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.5.0-pre</Version>
+    <Version>1.5.0-pre2</Version>
     <Authors>stefffdev</Authors>
     <Description>NubeSync Core Package</Description>
     <PackageTags>mobile;data;sync;azure mobile app;</PackageTags>
@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="5.0.1" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
