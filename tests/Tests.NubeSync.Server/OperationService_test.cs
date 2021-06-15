@@ -167,19 +167,56 @@ namespace Tests.NubeSync.Server.OperationService_test
         }
 
         [Fact]
-        public async Task Throws_when_add_operations_are_posted_multiple_times()
+        public async Task Does_not_process_operations_mulitple_times()
         {
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await Service.ProcessOperationsAsync(Context, NewOperations, "User"));
+            var operations = new List<NubeOperation>
+            {
+                new NubeOperation
+                {
+                    Id = "Op200",
+                    ItemId = "1",
+                    Type = OperationType.Modified,
+                    TableName = "TestItem",
+                    Property = "Name",
+                    OldValue = "Name0",
+                    Value = "Name1",
+                },
+                new NubeOperation
+                {
+                    Id = "Op400",
+                    ItemId = "2",
+                    Type = OperationType.Modified,
+                    TableName = "TestItem",
+                    Property = "Name",
+                    OldValue = null,
+                    Value = "Name2",
+                },
+                new NubeOperation
+                {
+                    Id = "Op666",
+                    ItemId = "2",
+                    Type = OperationType.Modified,
+                    TableName = "TestItem",
+                    Property = "Name",
+                    OldValue = null,
+                    Value = "New Name",
+                },
+            };
 
-            Assert.Equal("Operations cannot be added to the store, were these operations already processed?", ex.Message);
+            await Service.ProcessOperationsAsync(Context, operations, "user");
+
+            var updatedItem = Context.Items.Where(i => i.Id == "2").First();
+            var newOperation = Context.Operations.Where(o => o.Id == "Op666").FirstOrDefault();
+
+            Assert.Equal("New Name", updatedItem.Name);
+            Assert.NotNull(newOperation);
+            Assert.Equal(6, Context.Operations.Count());
         }
 
         [Fact]
-        public async Task Throws_when_modify_operations_are_posted_multiple_times()
+        public async Task Does_not_throw_when_operations_are_posted_multiple_times()
         {
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await Service.ProcessOperationsAsync(Context, NewOperations.Skip(1).ToArray(), "User"));
-
-            Assert.Equal("Operations cannot be added to the store, were these operations already processed?", ex.Message);
+            await Service.ProcessOperationsAsync(Context, NewOperations.Skip(1).ToArray(), "User");
         }
 
         [Fact]

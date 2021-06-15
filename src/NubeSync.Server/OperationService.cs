@@ -52,6 +52,7 @@ namespace NubeSync.Server
             var result = new List<(NubeServerTable, OperationType)>();
 
             var serverOperations = operations
+                .Where(o => _DoesNotExist(context, o))
                 .Select(x => new NubeServerOperation
                 {
                     Id = x.Id,
@@ -85,7 +86,6 @@ namespace NubeSync.Server
                 else if (operationGroup.Any(o => o.Type == OperationType.Deleted))
                 {
                     result.Add(await _ProcessDeleteAsync(context, itemOperations, type).ConfigureAwait(false));
-
                 }
                 else if (operationGroup.All(o => o.Type == OperationType.Modified) &&
                     itemOperations.Any())
@@ -100,15 +100,7 @@ namespace NubeSync.Server
                 var now = DateTimeOffset.Now;
                 operationGroup.ToList().ForEach(o => o.ServerUpdatedAt = now);
 
-                try
-                {
-                    await context.AddRangeAsync(operationGroup.ToList()).ConfigureAwait(false);
-                }
-                catch (InvalidOperationException)
-                {
-                    throw new InvalidOperationException("Operations cannot be added to the store, were these operations already processed?");
-                }
-
+                await context.AddRangeAsync(operationGroup.ToList()).ConfigureAwait(false);
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
 
@@ -118,6 +110,11 @@ namespace NubeSync.Server
         public void RegisterTable(Type type)
         {
             _nubeTableTypes.Add(type.Name, Tuple.Create(type, Expression.Lambda<Func<object>>(Expression.New(type)).Compile()));
+        }
+
+        private bool _DoesNotExist(DbContext context, NubeOperation operation)
+        {
+            return context.Set<NubeServerOperation>().Find(operation.Id) == null;
         }
 
         private async Task<DateTimeOffset> _GetLastChangeForPropertyAsync(
@@ -179,14 +176,7 @@ namespace NubeSync.Server
                     _UpdatePropertyFromOperation(newItem, operation, type);
                 }
 
-                try
-                {
-                    await context.AddAsync(newItem).ConfigureAwait(false);
-                }
-                catch (InvalidOperationException)
-                {
-                    throw new InvalidOperationException("Operations cannot be added to the store, were these operations already processed?");
-                }
+                await context.AddAsync(newItem).ConfigureAwait(false);
 
                 return (entity, OperationType.Added);
             }
