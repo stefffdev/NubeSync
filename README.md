@@ -2,7 +2,6 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/stefffdev/NubeSync/blob/master/LICENSE)
 ![GitHub last commit](https://img.shields.io/github/last-commit/stefffdev/NubeSync)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/stefffdev/NubeSync)
-![GitHub Repo stars](https://img.shields.io/github/stars/stefffdev/NubeSync)
 
 NubeSync is a bi-directional offline data sync framework
 
