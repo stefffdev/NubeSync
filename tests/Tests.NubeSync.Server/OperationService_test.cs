@@ -81,6 +81,16 @@ namespace Tests.NubeSync.Server.OperationService_test
         }
 
         [Fact]
+        public async Task Gets_the_correct_type_when_multiple_types_are_found()
+        {
+            await ClearDatabaseAsync();
+
+            await Service.ProcessOperationsAsync(Context, NewOperations, "User");
+
+            Assert.False(true);
+        }
+
+        [Fact]
         public async Task Processes_multiple_updates()
         {
             Context.RemoveRange(Context.Operations);
