@@ -62,7 +62,7 @@ namespace Tests.NubeSync.Server.OperationService_test
         }
 
         [Fact]
-        public async Task Gets_a_unregistered_type()
+        public async Task Gets_the_correct_unregistered_type()
         {
             await ClearDatabaseAsync();
 
@@ -78,16 +78,6 @@ namespace Tests.NubeSync.Server.OperationService_test
             Assert.Equal("Name2", item2.Name);
             Assert.Equal("User", item2.UserId);
             Assert.True(item2.ServerUpdatedAt > DateTimeOffset.Now.AddSeconds(-1));
-        }
-
-        [Fact]
-        public async Task Gets_the_correct_type_when_multiple_types_are_found()
-        {
-            await ClearDatabaseAsync();
-
-            await Service.ProcessOperationsAsync(Context, NewOperations, "User");
-
-            Assert.False(true);
         }
 
         [Fact]

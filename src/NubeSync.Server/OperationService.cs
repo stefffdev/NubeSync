@@ -139,14 +139,11 @@ namespace NubeSync.Server
                 return _nubeTableTypes[tableName].Item1;
             }
 
-            var types = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .SelectMany(x => x.GetTypes()).ToList();
-
             var type = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .SelectMany(x => x.GetTypes())
-                .FirstOrDefault(t => t.Name == tableName);
+                .FirstOrDefault(t => t.Name == tableName &&
+                    t.BaseType == typeof(NubeServerTable));
 
             if (type != null)
             {
