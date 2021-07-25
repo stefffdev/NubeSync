@@ -239,7 +239,9 @@ namespace Tests.NubeSync.Server.OperationService_test
                 TableName = "NonExistent"
             };
 
-            await Assert.ThrowsAsync<ReflectionTypeLoadException>(() => Service.ProcessOperationsAsync(Context, new List<NubeOperation> { operation }));
+            var ex = await Assert.ThrowsAsync<NullReferenceException>(() => Service.ProcessOperationsAsync(Context, new List<NubeOperation> { operation }));
+
+            Assert.Equal("The type NonExistent cannot be found", ex.Message);
         }
     }
 
