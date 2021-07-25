@@ -127,7 +127,7 @@
       <Version>5.0.7</Version>
     </PackageReference>
     <PackageReference Include="NubeSync.Client.SQLiteStore">
-      <Version>1.5.0</Version>
+      <Version>1.5.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />
     <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
