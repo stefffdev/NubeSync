@@ -62,7 +62,7 @@ namespace Tests.NubeSync.Server.OperationService_test
         }
 
         [Fact]
-        public async Task Gets_a_unregistered_type()
+        public async Task Gets_the_correct_unregistered_type()
         {
             await ClearDatabaseAsync();
 
@@ -239,7 +239,9 @@ namespace Tests.NubeSync.Server.OperationService_test
                 TableName = "NonExistent"
             };
 
-            await Assert.ThrowsAsync<ReflectionTypeLoadException>(() => Service.ProcessOperationsAsync(Context, new List<NubeOperation> { operation }));
+            var ex = await Assert.ThrowsAsync<NullReferenceException>(() => Service.ProcessOperationsAsync(Context, new List<NubeOperation> { operation }));
+
+            Assert.Equal("The type NonExistent cannot be found", ex.Message);
         }
     }
 
