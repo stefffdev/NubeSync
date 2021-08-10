@@ -95,5 +95,122 @@ namespace Tests.NubeSync.Client.SQLiteStore.NubeSQLiteDataStore_Operations_test
 
             Assert.Equal(Operations.Length, operations.Count());
         }
+
+        [Fact]
+        public async Task Get_operations_does_not_split_add_operations_1()
+        {
+            var operations = new NubeOperation[]
+            {
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "123", Type = OperationType.Deleted },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Added },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+            };
+            await DataStore.InitializeAsync();
+            await DataStore.AddOperationsAsync(operations);
+
+            var syncOperations = await DataStore.GetOperationsAsync(3);
+            var addOperations = syncOperations.Where(o => o.ItemId == "012");
+            Assert.Equal(2, syncOperations.Count());
+            Assert.Equal(0, addOperations.Count());
+
+            await DataStore.DeleteOperationsAsync(syncOperations.ToArray());
+            syncOperations = await DataStore.GetOperationsAsync(3);
+            addOperations = syncOperations.Where(o => o.ItemId == "012");
+            Assert.Equal(3, syncOperations.Count());
+            Assert.Equal(3, addOperations.Count());
+        }
+
+        [Fact]
+        public async Task Get_operations_does_not_split_add_operations_2()
+        {
+            var operations = new NubeOperation[]
+            {
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "123", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "123", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Added },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+            };
+            await DataStore.InitializeAsync();
+            await DataStore.AddOperationsAsync(operations);
+
+            var syncOperations = await DataStore.GetOperationsAsync(3);
+            var addOperations = syncOperations.Where(o => o.ItemId == "012");
+            Assert.Equal(3, syncOperations.Count());
+            Assert.Equal(0, addOperations.Count());
+
+            await DataStore.DeleteOperationsAsync(syncOperations.ToArray());
+            syncOperations = await DataStore.GetOperationsAsync(3);
+            addOperations = syncOperations.Where(o => o.ItemId == "012");
+            Assert.Equal(2, syncOperations.Count());
+            Assert.Equal(0, addOperations.Count());
+
+            await DataStore.DeleteOperationsAsync(syncOperations.ToArray());
+            syncOperations = await DataStore.GetOperationsAsync(3);
+            addOperations = syncOperations.Where(o => o.ItemId == "012");
+            Assert.Equal(3, syncOperations.Count());
+            Assert.Equal(3, addOperations.Count());
+        }
+
+        [Fact]
+        public async Task Get_operations_does_not_split_add_operations_3()
+        {
+            var operations = new NubeOperation[]
+            {
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Added },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+            };
+            await DataStore.InitializeAsync();
+            await DataStore.AddOperationsAsync(operations);
+
+            var syncOperations = await DataStore.GetOperationsAsync(3);
+            var addOperations = syncOperations.Where(o => o.ItemId == "012");
+            Assert.Equal(2, syncOperations.Count());
+            Assert.Equal(0, addOperations.Count());
+
+            await DataStore.DeleteOperationsAsync(syncOperations.ToArray());
+            syncOperations = await DataStore.GetOperationsAsync(3);
+            addOperations = syncOperations.Where(o => o.ItemId == "012");
+            Assert.Equal(5, syncOperations.Count());
+            Assert.Equal(5, addOperations.Count());
+        }
+
+        [Fact]
+        public async Task Get_operations_does_not_split_add_operations_4()
+        {
+            var operations = new NubeOperation[]
+            {
+                new NubeOperation() { ItemId = "012", Type = OperationType.Added },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+            };
+            await DataStore.InitializeAsync();
+            await DataStore.AddOperationsAsync(operations);
+
+            var syncOperations = await DataStore.GetOperationsAsync(3);
+            var addOperations = syncOperations.Where(o => o.ItemId == "012");
+            Assert.Equal(5, syncOperations.Count());
+            Assert.Equal(5, addOperations.Count());
+
+            await DataStore.DeleteOperationsAsync(syncOperations.ToArray());
+            syncOperations = await DataStore.GetOperationsAsync(3);
+            addOperations = syncOperations.Where(o => o.ItemId == "012");
+            Assert.Equal(2, syncOperations.Count());
+            Assert.Equal(0, addOperations.Count());
+        }
     }
 }

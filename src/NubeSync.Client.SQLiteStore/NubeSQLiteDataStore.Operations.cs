@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NubeSync.Core;
 
@@ -35,12 +36,27 @@ namespace NubeSync.Client.SQLiteStore
 
         public async Task<IQueryable<NubeOperation>> GetOperationsAsync(int numberOfOperations = 0)
         {
-            if (numberOfOperations != 0)
+            if (numberOfOperations == 0)
             {
-                return (await Database.Table<NubeOperation>().OrderBy(o => o.CreatedAt).Take(numberOfOperations).ToListAsync().ConfigureAwait(false)).AsQueryable();
+                return (await Database.Table<NubeOperation>().OrderBy(o => o.CreatedAt).ToListAsync().ConfigureAwait(false)).AsQueryable();
             }
 
-            return (await Database.Table<NubeOperation>().OrderBy(o => o.CreatedAt).ToListAsync().ConfigureAwait(false)).AsQueryable();
+            var groupedOperations = (await Database.Table<NubeOperation>().OrderBy(o => o.CreatedAt).ToListAsync())
+                .GroupBy(o => new { o.TableName, o.ItemId });
+
+            var operations = new List<NubeOperation>();
+
+            foreach (var group in groupedOperations)
+            {
+                if (operations.Count + group.Count() > numberOfOperations && operations.Any())
+                {
+                    break;
+                }
+
+                operations.AddRange(group);
+            }
+
+            return operations.AsQueryable();
         }
     }
 }
