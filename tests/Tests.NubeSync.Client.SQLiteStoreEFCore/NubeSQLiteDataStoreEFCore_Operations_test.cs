@@ -90,5 +90,26 @@ namespace Tests.NubeSync.Client.SQLiteStoreEFCore.NubeSQLiteDataStoreEFCore_Oper
 
             Assert.Equal(Operations.Length, operations.Count());
         }
+
+        [Fact]
+        public async Task Get_operations_does_not_split_add_operations()
+        {
+            var operations = new NubeOperation[]
+            {
+                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "123", Type = OperationType.Deleted },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Added },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+                new NubeOperation() { ItemId = "012", Type = OperationType.Modified },
+            };
+            await DataStore.InitializeAsync();
+            await DataStore.AddOperationsAsync(operations);
+
+            var all = await DataStore.GetOperationsAsync();
+            var syncOperations = await DataStore.GetOperationsAsync(3);
+
+            var addOperations = syncOperations.Where(o => o.ItemId == "012");
+            Assert.Equal(3, addOperations.Count());
+        }
     }
 }
