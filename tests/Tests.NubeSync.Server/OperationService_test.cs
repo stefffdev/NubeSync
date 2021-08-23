@@ -299,6 +299,8 @@ namespace Tests.NubeSync.Server.OperationService_test
         {
             Service.RegisterTable(typeof(TestItemInvalid));
             Context.RemoveRange(Context.Operations);
+            var testItemInvalid = new TestItemInvalid { Id = "1" };
+            Context.Add(testItemInvalid);
             Context.SaveChanges();
             var operations = GetDeleteOperation();
             operations[0].TableName = "TestItemInvalid";
@@ -306,6 +308,18 @@ namespace Tests.NubeSync.Server.OperationService_test
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => Service.ProcessOperationsAsync(Context, operations, "userId"));
 
             Assert.Equal("Deleted item is not of type NubeServerTable", ex.Message);
+        }
+
+        [Fact]
+        public async Task Does_nothing_when_record_does_not_exist()
+        {
+            var userId = "userId";
+            await ClearDatabaseAsync();
+            var operations = GetDeleteOperation();
+
+            var result = await Service.ProcessOperationsAsync(Context, operations, userId);
+
+            Assert.Empty(result);
         }
     }
 

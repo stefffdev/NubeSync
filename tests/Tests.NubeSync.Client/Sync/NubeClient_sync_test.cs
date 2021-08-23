@@ -135,11 +135,11 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
         public async Task Includes_the_last_sync_timestamp_in_the_request()
         {
             await AddTablesAsync();
-            DataStore.GetSettingAsync("lastSync-TestItem").Returns("2001-1-1");
+            DataStore.GetSettingAsync("lastSync-TestItem").Returns("2001-01-01T12:00:00.0000000+00:00");
 
             await NubeClient.PullTableAsync<TestItem>();
 
-            Assert.Equal("https://myserver/TestItem?pageNumber=1&pageSize=100&laterThan=2000-12-31T23:00:00.000Z", HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
+            Assert.Equal("https://myserver/TestItem?pageNumber=1&pageSize=100&laterThan=2001-01-01T12:00:00.000Z", HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
         }
 
         [Fact]
