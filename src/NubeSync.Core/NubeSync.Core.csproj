@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.5.2</Version>
+    <Version>1.5.3</Version>
     <Authors>stefffdev</Authors>
     <Description>NubeSync Core Package</Description>
     <PackageTags>mobile;data;sync;azure mobile app;xamarin;maui;</PackageTags>
