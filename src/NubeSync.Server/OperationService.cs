@@ -85,7 +85,11 @@ namespace NubeSync.Server
                 }
                 else if (operationGroup.Any(o => o.Type == OperationType.Deleted))
                 {
-                    result.Add(await _ProcessDeleteAsync(context, itemOperations, type).ConfigureAwait(false));
+                    var processDelete = await _ProcessDeleteAsync(context, itemOperations, type).ConfigureAwait(false);
+                    if (processDelete != null)
+                    {
+                        result.Add(processDelete.Value);
+                    }
                 }
                 else if (operationGroup.All(o => o.Type == OperationType.Modified) &&
                     itemOperations.Any())
@@ -187,7 +191,7 @@ namespace NubeSync.Server
             }
         }
 
-        private async Task<(NubeServerTable, OperationType)> _ProcessDeleteAsync(
+        private async Task<(NubeServerTable, OperationType)?> _ProcessDeleteAsync(
             DbContext context,
             NubeServerOperation[] operations,
             Type type)
@@ -195,6 +199,12 @@ namespace NubeSync.Server
             var deleteOperation = operations.Where(o => o.Type == OperationType.Deleted).First();
 
             var item = await context.FindAsync(type, deleteOperation.ItemId).ConfigureAwait(false);
+            if (item == null)
+            {
+                // item does not exist, no need to delete
+                return null;
+            }
+
             if (item is NubeServerTable localItem)
             {
                 var now = DateTimeOffset.Now;
