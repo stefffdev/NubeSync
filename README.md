@@ -16,7 +16,7 @@ NubeSync is a bi-directional offline data sync framework
 
 ## Supported Platforms
 * Every platform that supports .NET Standard 2.0 (Xamarin, MAUI, Blazor, Uno, UWP, WPF, ...)
-* Flutter
+* Flutter (experimental)
 
 ## Documentation & Getting Started
 See the [Wiki page](https://github.com/stefffdev/NubeSync/wiki) for getting started and have a look at the [samples](https://github.com/stefffdev/NubeSync/tree/master/samples).
