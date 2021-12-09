@@ -34,7 +34,8 @@ namespace NubeSync.Service
             // UNCOMMENT THIS IF YOU WANT TO ACTIVATE AUTHENTICATION
             //services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
-            services.AddDbContext<DataContext>(opt => opt.UseSqlServer("Server=(localdb)\\v11.0;Database=nube-sample;Trusted_Connection=True;MultipleActiveResultSets=true"));
+            services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase("test"));
+            
             services.AddControllers();
             services.AddSignalR();
 
