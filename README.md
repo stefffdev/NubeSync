@@ -15,7 +15,7 @@ NubeSync is a bi-directional offline data sync framework
 * NubeSync can be implemented as a successor to the Azure Mobile App Service offline sync capabilities
 
 ## Supported Platforms
-* Every platform that supports .NET Standard 2.0 (Xamarin, MAUI, Blazor, Uno, UWP, WPF, ...)
+* Every platform that supports .NET Standard 2.0 (Xamarin, MAUI, Blazor, Uno, UWP, WPF, Console Apps, ...)
 * Flutter (experimental)
 
 ## Documentation & Getting Started
