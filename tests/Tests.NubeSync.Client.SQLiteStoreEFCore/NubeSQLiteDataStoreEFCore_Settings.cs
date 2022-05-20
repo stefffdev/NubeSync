@@ -8,7 +8,6 @@ namespace Tests.NubeSync.Client.SQLiteStoreEFCore.NubeSQLiteDataStoreEFCore_Sett
         [Fact]
         public async Task Stores_the_setting()
         {
-            await DataStore.InitializeAsync();
             Assert.True(await DataStore.SetSettingAsync("test", "value"));
 
             var result = await DataStore.GetSettingAsync("test");
