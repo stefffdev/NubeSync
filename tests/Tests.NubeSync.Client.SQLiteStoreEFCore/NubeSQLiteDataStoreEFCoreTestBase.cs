@@ -1,19 +1,15 @@
-﻿using System;
-using System.IO;
-using NubeSync.Core;
+﻿using NubeSync.Core;
 
 namespace Tests.NubeSync.Client.SQLiteStoreEFCore
 {
-    public class NubeSQLiteDataStoreEFCoreTestBase : IDisposable
+    public class NubeSQLiteDataStoreEFCoreTestBase
     {
-        protected string DatabaseFile;
         protected TestStore DataStore;
         protected NubeOperation[] Operations;
 
         public NubeSQLiteDataStoreEFCoreTestBase()
         {
-            DatabaseFile = Path.GetTempFileName();
-            DataStore = new TestStore(DatabaseFile);
+            DataStore = new TestStore();
             DataStore.Database.EnsureCreated();
 
             Operations = new NubeOperation[]
@@ -24,12 +20,6 @@ namespace Tests.NubeSync.Client.SQLiteStoreEFCore
                 new NubeOperation() { ItemId = "789", Type = OperationType.Modified },
                 new NubeOperation() { ItemId = "012", Type = OperationType.Added },
             };
-        }
-
-        public void Dispose()
-        {
-            DataStore.Dispose();
-            File.Delete(DatabaseFile);
         }
     }
 }
