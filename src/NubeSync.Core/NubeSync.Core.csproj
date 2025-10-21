@@ -1,50 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <Version>1.5.3</Version>
+        <Authors>stefffdev</Authors>
+        <Description>NubeSync Core Package</Description>
+        <PackageTags>mobile;data;sync;azure mobile app;xamarin;maui;</PackageTags>
+        <PackageProjectUrl>https://github.com/stefffdev/NubeSync</PackageProjectUrl>
+        <Product>NubeSync.Core</Product>
+        <PackageId>NubeSync.Core</PackageId>
+        <Copyright>Copyright 2020 stefffdev</Copyright>
+        <RepositoryUrl>https://github.com/stefffdev/NubeSync</RepositoryUrl>
+        <PackageIcon>Icon.png</PackageIcon>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
-    <Nullable>enable</Nullable>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Tests.$(AssemblyName)</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 
-  <PropertyGroup>
-    <Version>1.5.3</Version>
-    <Authors>stefffdev</Authors>
-    <Description>NubeSync Core Package</Description>
-    <PackageTags>mobile;data;sync;azure mobile app;xamarin;maui;</PackageTags>
-    <PackageProjectUrl>https://github.com/stefffdev/NubeSync</PackageProjectUrl>
-    <Product>NubeSync.Core</Product>
-    <PackageId>NubeSync.Core</PackageId>
-    <Copyright>Copyright 2020 stefffdev</Copyright>
-    <RepositoryUrl>https://github.com/stefffdev/NubeSync</RepositoryUrl>
-    <PackageIcon>Icon.png</PackageIcon>
-  </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\..\Icon.png" Link="Icon.png">
+            <PackagePath></PackagePath>
+            <Pack>True</Pack>
+        </None>
+    </ItemGroup>
 
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>Tests.$(AssemblyName)</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+        <PackageReference Include="System.Text.Json" Version="9.0.9"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\Icon.png" Link="Icon.png">
-      <PackagePath></PackagePath>
-      <Pack>True</Pack>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-	  <PackageReference Include="System.Text.Json" Version="6.0.4" />
-  </ItemGroup>
-  
 </Project>

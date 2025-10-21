@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Tests.NubeSync.Client.NubeClient_test;
@@ -26,10 +27,7 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
         [Fact]
         public async Task Returns_true_when_operations_are_pending()
         {
-            var operations = new List<NubeOperation>()
-            {
-                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
-            };
+            var operations = new List<NubeOperation>() { new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified }, };
             DataStore.GetOperationsAsync().Returns(operations.AsQueryable());
 
             var result = await NubeClient.HasPendingOperationsAsync();
@@ -139,7 +137,8 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
 
             await NubeClient.PullTableAsync<TestItem>();
 
-            Assert.Equal("https://myserver/TestItem?pageNumber=1&pageSize=100&laterThan=2001-01-01T12:00:00.000Z", HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
+            Assert.Equal("https://myserver/TestItem?pageNumber=1&pageSize=100&laterThan=2001-01-01T12:00:00.000Z",
+                HttpMessageHandler.LastRequest.RequestUri.AbsoluteUri);
         }
 
         [Fact]
@@ -221,11 +220,7 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
         public async Task Updates_all_properties_of_the_local_item()
         {
             await AddTablesAsync();
-            var localItems = new List<TestItem>
-            {
-                new TestItem { Id = "123", Name = "LocalName1" },
-                new TestItem { Id = "456", Name = "LocalName2" },
-            };
+            var localItems = new List<TestItem> { new TestItem { Id = "123", Name = "LocalName1" }, new TestItem { Id = "456", Name = "LocalName2" }, };
             DataStore.FindByIdAsync<TestItem>(localItems[0].Id).Returns(localItems[0]);
             DataStore.FindByIdAsync<TestItem>(localItems[1].Id).Returns(localItems[1]);
 
@@ -279,17 +274,13 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
         [Fact]
         public async Task Deletes_the_operations_when_post_was_successful()
         {
-            var existingOperations = new List<NubeOperation>()
-            {
-                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
-            };
+            var existingOperations = new List<NubeOperation>() { new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified }, };
             DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
-            DataStore.When(x => x.DeleteOperationsAsync(Arg.Any<NubeOperation[]>())).Do(
-                x =>
-                {
-                    existingOperations = new List<NubeOperation>();
-                    DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
-                });
+            DataStore.When(x => x.DeleteOperationsAsync(Arg.Any<NubeOperation[]>())).Do(x =>
+            {
+                existingOperations = new List<NubeOperation>();
+                DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
+            });
 
             await NubeClient.PushChangesAsync();
 
@@ -308,14 +299,13 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
                 new NubeOperation() { ItemId = Item.Id, Type = OperationType.Added },
             };
             var expectedContent = JsonSerializer.Serialize(existingOperations,
-                new JsonSerializerOptions { IgnoreNullValues = true });
+                new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
             DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
-            DataStore.When(x => x.DeleteOperationsAsync(Arg.Any<NubeOperation[]>())).Do(
-                x =>
-                {
-                    existingOperations = new List<NubeOperation>();
-                    DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
-                });
+            DataStore.When(x => x.DeleteOperationsAsync(Arg.Any<NubeOperation[]>())).Do(x =>
+            {
+                existingOperations = new List<NubeOperation>();
+                DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
+            });
 
             await NubeClient.PushChangesAsync();
 
@@ -330,17 +320,13 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
             var operationsUrl = "/different";
             NubeClient = new NubeClient(DataStore, ServerUrl, Authentication, HttpClient, ChangeTracker, operationsUrl);
 
-            var existingOperations = new List<NubeOperation>()
-            {
-                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
-            };
+            var existingOperations = new List<NubeOperation>() { new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified }, };
             DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
-            DataStore.When(x => x.DeleteOperationsAsync(Arg.Any<NubeOperation[]>())).Do(
-                x =>
-                {
-                    existingOperations = new List<NubeOperation>();
-                    DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
-                });
+            DataStore.When(x => x.DeleteOperationsAsync(Arg.Any<NubeOperation[]>())).Do(x =>
+            {
+                existingOperations = new List<NubeOperation>();
+                DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
+            });
 
             await NubeClient.PushChangesAsync();
 
@@ -351,22 +337,18 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
         public async Task Queries_the_operations_until_there_are_no_more()
         {
             var i = 0;
-            var existingOperations = new List<NubeOperation>()
-            {
-                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
-            };
+            var existingOperations = new List<NubeOperation>() { new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified }, };
             DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
-            DataStore.When(x => x.DeleteOperationsAsync(Arg.Any<NubeOperation[]>())).Do(
-                x =>
+            DataStore.When(x => x.DeleteOperationsAsync(Arg.Any<NubeOperation[]>())).Do(x =>
+            {
+                if (i > 0)
                 {
-                    if (i > 0)
-                    {
-                        existingOperations = new List<NubeOperation>();
-                        DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
-                    }
+                    existingOperations = new List<NubeOperation>();
+                    DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
+                }
 
-                    i++;
-                });
+                i++;
+            });
 
             await NubeClient.PushChangesAsync();
 
@@ -406,10 +388,7 @@ namespace Tests.NubeSync.Client.NubeClient_sync_test
         public async Task Throws_when_post_failed()
         {
             HttpMessageHandler.HttpRequestFails = true;
-            var existingOperations = new List<NubeOperation>()
-            {
-                new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified },
-            };
+            var existingOperations = new List<NubeOperation>() { new NubeOperation() { ItemId = "otherId", Type = OperationType.Modified }, };
             DataStore.GetOperationsAsync(Arg.Any<int>()).Returns(existingOperations.AsQueryable());
 
             var ex = await Assert.ThrowsAsync<PushOperationFailedException>(async () => await NubeClient.PushChangesAsync());
