@@ -37,7 +37,7 @@ public interface INubeClient
     /// <typeparam name="T">The type of the table to be queried.</typeparam>
     /// <param name="id">The id of the item.</param>
     /// <returns>The item with the given id.</returns>
-    Task<T> GetByIdAsync<T>(string id) where T : NubeTable;
+    Task<T?> GetByIdAsync<T>(string id) where T : NubeTable;
 
     /// <summary>
     /// Checks wether there are any sync operations that have not be pushed to the server.

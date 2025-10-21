@@ -1,9 +1,8 @@
-﻿namespace Tests.NubeSync.Core
-{
-    public enum TestEnum
+﻿namespace Tests.NubeSync.Core;
 
-    {
-        Low,
-        High
-    }
+public enum TestEnum
+
+{
+    Low,
+    High
 }

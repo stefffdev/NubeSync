@@ -10,14 +10,14 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>1.5.3</Version>
+        <Version>2.0.0</Version>
         <Authors>stefffdev</Authors>
         <Description>NubeSync Core Package</Description>
         <PackageTags>mobile;data;sync;azure mobile app;xamarin;maui;</PackageTags>
         <PackageProjectUrl>https://github.com/stefffdev/NubeSync</PackageProjectUrl>
         <Product>NubeSync.Core</Product>
         <PackageId>NubeSync.Core</PackageId>
-        <Copyright>Copyright 2020 stefffdev</Copyright>
+        <Copyright>Copyright 2025 stefffdev</Copyright>
         <RepositoryUrl>https://github.com/stefffdev/NubeSync</RepositoryUrl>
         <PackageIcon>Icon.png</PackageIcon>
     </PropertyGroup>
@@ -30,7 +30,6 @@
 
     <ItemGroup>
         <None Include="..\..\Icon.png" Link="Icon.png">
-            <PackagePath></PackagePath>
             <Pack>True</Pack>
         </None>
     </ItemGroup>

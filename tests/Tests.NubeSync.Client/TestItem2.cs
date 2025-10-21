@@ -1,8 +1,5 @@
-﻿using NubeSync.Core;
+﻿namespace Tests.NubeSync.Client;
 
-namespace Tests.NubeSync.Client
+public class TestItem2 : NubeTable
 {
-    public class TestItem2 : NubeTable
-    {
-    }
 }

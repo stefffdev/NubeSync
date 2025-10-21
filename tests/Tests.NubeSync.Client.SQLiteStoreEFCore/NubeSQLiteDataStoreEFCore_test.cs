@@ -1,16 +1,12 @@
-﻿using System.Threading.Tasks;
-using Xunit;
+﻿namespace Tests.NubeSync.Client.SQLiteStoreEFCore;
 
-namespace Tests.NubeSync.Client.SQLiteStoreEFCore
+public partial class Always : NubeSQLiteDataStoreEFCoreTestBase
 {
-    public class Always : NubeSQLiteDataStoreEFCoreTestBase
+    [Fact]
+    public async Task Add_table_creates_the_table()
     {
-        [Fact]
-        public async Task Add_table_creates_the_table()
-        {
-            await DataStore.AddTableAsync<TestItem>();
+        await DataStore.AddTableAsync<TestItem>();
 
-            Assert.True(await DataStore.TableExistsAsync<TestItem>());
-        }
+        Assert.True(await DataStore.TableExistsAsync<TestItem>());
     }
 }

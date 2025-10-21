@@ -39,7 +39,7 @@ public partial class NubeClient
         return await _dataStore.AllAsync<T>().ConfigureAwait(false);
     }
 
-    public async Task<T> GetByIdAsync<T>(string id) where T : NubeTable
+    public async Task<T?> GetByIdAsync<T>(string id) where T : NubeTable
     {
         _IsValidTable<T>();
 

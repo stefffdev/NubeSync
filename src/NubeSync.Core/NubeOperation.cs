@@ -1,33 +1,25 @@
-﻿using System;
+﻿namespace NubeSync.Core;
 
-namespace NubeSync.Core
+public class NubeOperation
 {
-    public class NubeOperation
+    public DateTimeOffset CreatedAt { get; set; }
+
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    public string ItemId { get; set; } = string.Empty;
+
+    public string? OldValue { get; set; }
+
+    public string? Property { get; set; }
+
+    public string TableName { get; set; } = string.Empty;
+
+    public OperationType Type { get; set; }
+
+    public string? Value { get; set; }
+
+    public override string ToString()
     {
-        public NubeOperation()
-        {
-            Id = Guid.NewGuid().ToString();
-        }
-
-        public DateTimeOffset CreatedAt { get; set; }
-
-        public string Id { get; set; }
-
-        public string ItemId { get; set; } = string.Empty;
-
-        public string? OldValue { get; set; }
-
-        public string? Property { get; set; }
-
-        public string TableName { get; set; } = string.Empty;
-
-        public OperationType Type { get; set; }
-
-        public string? Value { get; set; }
-
-        public override string ToString()
-        {
-            return $"Id {Id}, {Type} {Property} in table {TableName} for item {ItemId} with value {Value} (old: {OldValue})";
-        }
+        return $"Id {Id}, {Type} {Property} in table {TableName} for item {ItemId} with value {Value} (old: {OldValue})";
     }
 }

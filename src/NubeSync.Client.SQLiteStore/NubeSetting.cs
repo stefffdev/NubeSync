@@ -1,12 +1,9 @@
-﻿using SQLite;
+﻿namespace NubeSync.Client.SQLiteStore;
 
-namespace NubeSync.Client.SQLiteStore
+internal class NubeSetting
 {
-    internal class NubeSetting
-    {
-        [PrimaryKey]
-        public string Id { get; set; } = null!;
+    [PrimaryKey]
+    public string Id { get; set; } = null!;
 
-        public string? Value { get; set; }
-    }
+    public string? Value { get; set; }
 }

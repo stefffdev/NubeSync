@@ -1,9 +1,8 @@
-﻿namespace Tests.NubeSync.Server.SomeFolder
-{
-    public class TestItem
-    {
-        public string Name { get; set; }
+﻿namespace Tests.NubeSync.Server.SomeFolder;
 
-        public int Value { get; set; }
-    }
+public class TestItem
+{
+    public string Name { get; set; }
+
+    public int Value { get; set; }
 }

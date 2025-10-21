@@ -1,17 +1,12 @@
-﻿using System;
-using NubeSync.Core;
-using Xunit;
+﻿namespace Tests.NubeSync.Core;
 
-namespace Tests.NubeSync.Core.NubeOperation_test
+public class Always
 {
-    public class Always
+    [Fact]
+    public void Id_is_generated()
     {
-        [Fact]
-        public void Id_is_generated()
-        {
-            var operation = new NubeOperation();
+        var operation = new NubeOperation();
 
-            Assert.NotEmpty(operation.Id);
-        }
+        Assert.NotEmpty(operation.Id);
     }
 }

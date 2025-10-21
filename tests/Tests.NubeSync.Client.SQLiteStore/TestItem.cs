@@ -1,12 +1,8 @@
-﻿using System;
-using NubeSync.Core;
+﻿namespace Tests.NubeSync.Client.SQLiteStore;
 
-namespace Tests.NubeSync.Client.SQLiteStore
+public class TestItem : NubeTable
 {
-    public class TestItem : NubeTable
-    {
-        public DateTimeOffset? DeletedAt { get; set; }
+    public DateTimeOffset? DeletedAt { get; set; }
 
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

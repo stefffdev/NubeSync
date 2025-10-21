@@ -1,19 +1,15 @@
-﻿using System.Threading.Tasks;
-using Xunit;
+﻿namespace Tests.NubeSync.Client.SQLiteStore;
 
-namespace Tests.NubeSync.Client.SQLiteStore.NubeSQLiteDataStore_Settings_test
+public partial class Always : NubeSQLiteDataStoreTestBase
 {
-    public class Always : NubeSQLiteDataStoreTestBase
+    [Fact]
+    public async Task Stores_the_setting()
     {
-        [Fact]
-        public async Task Stores_the_setting()
-        {
-            await DataStore.InitializeAsync();
-            Assert.True(await DataStore.SetSettingAsync("test", "value"));
+        await DataStore.InitializeAsync();
+        Assert.True(await DataStore.SetSettingAsync("test", "value"));
 
-            var result = await DataStore.GetSettingAsync("test");
+        var result = await DataStore.GetSettingAsync("test");
 
-            Assert.Equal("value", result);
-        }
+        Assert.Equal("value", result);
     }
 }
