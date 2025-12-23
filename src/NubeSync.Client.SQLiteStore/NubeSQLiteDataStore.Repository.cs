@@ -32,7 +32,7 @@ public partial class NubeSQLiteDataStore
         }, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default).ConfigureAwait(false);
     }
 
-    public async Task<T?> FindByIdAsync<T>(string? id) where T : NubeTable?
+    public async Task<T?> FindByIdAsync<T>(string? id) where T : NubeTable
     {
         var mapping = await _GetMappingAsync<T>();
         return (T) await Database.FindAsync(id, mapping).ConfigureAwait(false);

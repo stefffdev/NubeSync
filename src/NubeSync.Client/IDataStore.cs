@@ -51,7 +51,7 @@ public interface IDataStore
     /// <typeparam name="T">The table type.</typeparam>
     /// <param name="id">The id of the item.</param>
     /// <returns>The item matching the provided id.</returns>
-    Task<T?> FindByIdAsync<T>(string? id) where T : NubeTable?;
+    Task<T?> FindByIdAsync<T>(string? id) where T : NubeTable;
 
     /// <summary>
     /// Get all operations from the local storage.
